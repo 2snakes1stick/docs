@@ -1,0 +1,569 @@
+---
+title: 'LÖTUS Experience Component'
+description: 'Showcase component highlighting core values and exclusive services with service cards'
+---
+
+# LÖTUS Experience Component
+
+The LÖTUS Experience section communicates our brand values and exclusive offerings through carefully crafted content and visual service cards. This component embodies our commitment to wellness excellence and natural harmony.
+
+## Overview
+
+This section presents the essence of LÖTUS through:
+- **Brand Narrative**: Compelling copy emphasizing our core values
+- **Service Cards**: Visual representation of exclusive offerings
+- **Call-to-Action**: "DISCOVER" button leading to detailed information
+
+<CardGroup cols={3}>
+  <Card title="Brand Values" icon="heart">
+    Commitment, exclusivity, health, care, natural beauty, harmony
+  </Card>
+  <Card title="Service Cards" icon="spa">
+    Visual cards showcasing exclusive retreat services
+  </Card>
+  <Card title="Discovery CTA" icon="compass">
+    Encourages deeper exploration of offerings
+  </Card>
+</CardGroup>
+
+## Component API
+
+### Props
+
+```typescript
+interface LotusExperienceProps {
+  /** Main section title */
+  title?: string;
+  
+  /** Experience description text */
+  description?: string;
+  
+  /** Array of service offerings */
+  services: ServiceCard[];
+  
+  /** Call-to-action configuration */
+  cta?: {
+    text: string;
+    href: string;
+    variant?: 'primary' | 'secondary';
+  };
+  
+  /** Section styling options */
+  variant?: 'light' | 'dark' | 'natural';
+  
+  /** Animation preferences */
+  animationEnabled?: boolean;
+}
+
+interface ServiceCard {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  image?: string;
+  features?: string[];
+  badge?: string;
+}
+```
+
+### Default Configuration
+
+```typescript
+const defaultProps: Partial<LotusExperienceProps> = {
+  title: "THE LÖTUS EXPERIENCE",
+  cta: {
+    text: "DISCOVER",
+    href: "/experience",
+    variant: "primary"
+  },
+  variant: "light",
+  animationEnabled: true
+};
+
+const coreValues = [
+  "commitment", "exclusive", "health", 
+  "care", "natural beauty", "harmony"
+];
+```
+
+## Implementation
+
+### Basic Usage
+
+```jsx
+import { LotusExperience } from '@/components/landing/lotus-experience';
+
+const services = [
+  {
+    id: "pilates-sessions",
+    title: "Exclusive Pilates Sessions",
+    description: "Private instruction in stunning natural settings",
+    icon: "lotus-pose",
+    features: ["1:1 Instruction", "Outdoor Sessions", "Equipment Provided"]
+  },
+  {
+    id: "wellness-spa",
+    title: "Holistic Wellness Spa",
+    description: "Rejuvenating treatments using natural ingredients",
+    icon: "spa-stones",
+    features: ["Organic Products", "Expert Therapists", "Custom Treatments"]
+  },
+  {
+    id: "gourmet-nutrition",
+    title: "Gourmet Nutrition",
+    description: "Locally-sourced, nutritionally-balanced cuisine",
+    icon: "healthy-food",
+    features: ["Local Ingredients", "Dietary Accommodations", "Chef-Prepared"]
+  }
+];
+
+export default function LandingPage() {
+  return (
+    <LotusExperience
+      services={services}
+      description="Experience the perfect harmony of commitment to wellness, exclusive care in natural beauty, and holistic health transformation."
+    />
+  );
+}
+```
+
+### Advanced Configuration
+
+```jsx
+<LotusExperience
+  title="DISCOVER YOUR TRANSFORMATION"
+  description="Our commitment to your wellness journey combines exclusive experiences with natural beauty, providing personalized care that nurtures harmony between mind, body, and spirit."
+  services={services}
+  cta={{
+    text: "EXPLORE SERVICES",
+    href: "/services",
+    variant: "secondary"
+  }}
+  variant="natural"
+  animationEnabled={true}
+/>
+```
+
+## Core Values Integration
+
+### Vocabulary Implementation
+
+The component emphasizes our six core values through strategic content placement:
+
+```typescript
+const valueMapping = {
+  commitment: {
+    headline: "Our Commitment to Excellence",
+    description: "Dedicated to your personal transformation journey"
+  },
+  exclusive: {
+    headline: "Exclusive Experiences",
+    description: "Private, personalized retreats in pristine locations"
+  },
+  health: {
+    headline: "Holistic Health Focus",
+    description: "Comprehensive wellness through mind-body connection"
+  },
+  care: {
+    headline: "Personalized Care",
+    description: "Individual attention from expert practitioners"
+  },
+  naturalBeauty: {
+    headline: "Natural Beauty Settings",
+    description: "Breathtaking locations that inspire and heal"
+  },
+  harmony: {
+    headline: "Mind-Body Harmony",
+    description: "Balance through integrated wellness practices"
+  }
+};
+```
+
+### Content Structure
+
+```jsx
+const ExperienceNarrative = () => (
+  <div className="experience-narrative">
+    <h2>THE LÖTUS EXPERIENCE</h2>
+    <p className="lead-text">
+      Our <strong>commitment</strong> to your wellness journey begins with 
+      <strong> exclusive</strong> experiences designed to enhance your 
+      <strong> health</strong> through personalized <strong>care</strong>. 
+      Set in locations of stunning <strong>natural beauty</strong>, 
+      each retreat creates perfect <strong>harmony</strong> between 
+      mind, body, and spirit.
+    </p>
+  </div>
+);
+```
+
+## Service Cards Design
+
+### Card Layout Structure
+
+```jsx
+const ServiceCard = ({ service }: { service: ServiceCard }) => (
+  <div className="service-card">
+    <div className="card-header">
+      <div className="card-icon">
+        <Icon name={service.icon} size="large" />
+      </div>
+      {service.badge && (
+        <span className="card-badge">{service.badge}</span>
+      )}
+    </div>
+    
+    <div className="card-content">
+      <h3 className="card-title">{service.title}</h3>
+      <p className="card-description">{service.description}</p>
+      
+      {service.features && (
+        <ul className="card-features">
+          {service.features.map((feature, index) => (
+            <li key={index}>{feature}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+    
+    {service.image && (
+      <div className="card-image">
+        <Image
+          src={service.image}
+          alt={service.title}
+          width={300}
+          height={200}
+          style={{ objectFit: 'cover' }}
+        />
+      </div>
+    )}
+  </div>
+);
+```
+
+### Predefined Service Examples
+
+```typescript
+export const defaultServices: ServiceCard[] = [
+  {
+    id: "private-pilates",
+    title: "Private Pilates Instruction",
+    description: "One-on-one sessions with certified instructors in breathtaking natural settings",
+    icon: "pilates-pose",
+    image: "/images/services/private-pilates.jpg",
+    features: [
+      "Certified Instructors",
+      "Personalized Programs", 
+      "Outdoor Studio Settings",
+      "Equipment Included"
+    ],
+    badge: "EXCLUSIVE"
+  },
+  {
+    id: "wellness-spa",
+    title: "Holistic Wellness Spa",
+    description: "Rejuvenating treatments using locally-sourced, organic ingredients",
+    icon: "spa-treatment",
+    image: "/images/services/wellness-spa.jpg",
+    features: [
+      "Organic Products",
+      "Expert Therapists",
+      "Custom Treatments",
+      "Natural Ingredients"
+    ]
+  },
+  {
+    id: "mindful-nutrition",
+    title: "Mindful Nutrition",
+    description: "Gourmet cuisine crafted for optimal wellness and energy",
+    icon: "healthy-nutrition",
+    image: "/images/services/nutrition.jpg",
+    features: [
+      "Local Sourcing",
+      "Dietary Accommodations",
+      "Chef-Prepared Meals",
+      "Nutritional Balance"
+    ]
+  },
+  {
+    id: "nature-immersion",
+    title: "Nature Immersion",
+    description: "Guided experiences connecting you with the natural world",
+    icon: "nature-leaf",
+    image: "/images/services/nature.jpg",
+    features: [
+      "Guided Walks",
+      "Meditation Spaces",
+      "Wildlife Encounters",
+      "Scenic Locations"
+    ],
+    badge: "POPULAR"
+  }
+];
+```
+
+## Styling and Animations
+
+### CSS Architecture
+
+```scss
+.lotus-experience {
+  --section-padding: 120px 0;
+  --card-gap: 2rem;
+  --card-radius: 16px;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  &--light {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--text-dark);
+  }
+  
+  &--dark {
+    background: linear-gradient(135deg, #2c3e50 0%, #3c566b 100%);
+    color: var(--text-light);
+  }
+  
+  &--natural {
+    background: linear-gradient(135deg, #d4cfc0 0%, #e8e2d5 100%);
+    color: var(--text-earth);
+  }
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--card-gap);
+  margin-top: 3rem;
+}
+
+.service-card {
+  background: white;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+```
+
+### Animation Implementation
+
+```jsx
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 50 
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
+  }
+};
+
+const AnimatedLotusExperience = ({ services, ...props }) => (
+  <motion.section
+    className="lotus-experience"
+    variants={containerVariants}
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+  >
+    <motion.div className="service-grid">
+      {services.map((service) => (
+        <motion.div
+          key={service.id}
+          variants={cardVariants}
+          className="service-card"
+          whileHover={{ scale: 1.02 }}
+        >
+          <ServiceCard service={service} />
+        </motion.div>
+      ))}
+    </motion.div>
+  </motion.section>
+);
+```
+
+## Accessibility Features
+
+### WCAG 2.1 AA Compliance
+
+```jsx
+<section
+  className="lotus-experience"
+  aria-labelledby="experience-title"
+  role="region"
+>
+  <h2 id="experience-title" className="section-title">
+    THE LÖTUS EXPERIENCE
+  </h2>
+  
+  <div 
+    className="service-grid"
+    role="list"
+    aria-label="LÖTUS exclusive services"
+  >
+    {services.map((service) => (
+      <article
+        key={service.id}
+        className="service-card"
+        role="listitem"
+        tabIndex={0}
+        aria-labelledby={`service-title-${service.id}`}
+      >
+        <h3 id={`service-title-${service.id}`}>
+          {service.title}
+        </h3>
+        <p>{service.description}</p>
+        
+        {service.features && (
+          <ul aria-label={`${service.title} features`}>
+            {service.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))}
+          </ul>
+        )}
+      </article>
+    ))}
+  </div>
+  
+  <button
+    className="discover-cta"
+    aria-label="Discover more about LÖTUS experiences"
+  >
+    DISCOVER
+  </button>
+</section>
+```
+
+### Keyboard Navigation
+
+```typescript
+const handleKeyDown = (event: KeyboardEvent, serviceId: string) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault();
+      navigateToService(serviceId);
+      break;
+    case 'ArrowRight':
+      focusNextCard();
+      break;
+    case 'ArrowLeft':
+      focusPreviousCard();
+      break;
+  }
+};
+```
+
+## Content Management
+
+### CMS Integration
+
+```typescript
+interface CMSLotusExperience {
+  title: string;
+  description: string;
+  services: CMSServiceCard[];
+  ctaText: string;
+  ctaLink: string;
+  variant: 'light' | 'dark' | 'natural';
+}
+
+const fetchExperienceContent = async (): Promise<CMSLotusExperience> => {
+  const response = await fetch('/api/content/lotus-experience');
+  return response.json();
+};
+```
+
+### SEO Optimization
+
+```jsx
+const ExperienceSEO = () => (
+  <Head>
+    <title>The LÖTUS Experience - Exclusive Wellness Retreats</title>
+    <meta 
+      name="description" 
+      content="Discover exclusive pilates and wellness retreats focusing on commitment, health, and harmony in stunning natural settings."
+    />
+    <meta 
+      name="keywords" 
+      content="exclusive wellness retreat, pilates retreat, natural beauty, holistic health, personalized care"
+    />
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "LÖTUS Wellness Experience",
+        "description": "Exclusive wellness and pilates retreats",
+        "provider": {
+          "@type": "Organization",
+          "name": "LÖTUS Retreats"
+        }
+      })}
+    </script>
+  </Head>
+);
+```
+
+## Testing
+
+### Component Tests
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { LotusExperience } from './lotus-experience';
+
+const mockServices = [
+  {
+    id: "test-service",
+    title: "Test Service",
+    description: "Test description",
+    icon: "test-icon"
+  }
+];
+
+describe('LotusExperience', () => {
+  it('renders core values vocabulary', () => {
+    render(<LotusExperience services={mockServices} />);
+    
+    expect(screen.getByText(/commitment/i)).toBeInTheDocument();
+    expect(screen.getByText(/exclusive/i)).toBeInTheDocument();
+    expect(screen.getByText(/natural beauty/i)).toBeInTheDocument();
+  });
+  
+  it('displays service cards correctly', () => {
+    render(<LotusExperience services={mockServices} />);
+    
+    expect(screen.getByRole('list')).toBeInTheDocument();
+    expect(screen.getByLabelText(/test service/i)).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+<Note>
+The LÖTUS Experience section is crucial for communicating brand values. Ensure all content reflects the luxury wellness positioning and core vocabulary.
+</Note>

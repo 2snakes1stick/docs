@@ -1,44 +1,143 @@
 ---
-title: "bonjour "
-description: "Welcome to the home of your new documentation"
+title: 'LÖTUS Pilates Retreat Documentation'
+description: 'Comprehensive documentation for the exclusive wellness and pilates retreat website'
 ---
 
-<img alt="Hero Light" classname="block dark:hidden" src="/images/hero-light.svg" />
+# Welcome to LÖTUS Pilates Retreat
 
-<img alt="Hero Dark" classname="hidden dark:block" src="/images/hero-dark.svg" />
+<img
+  className="block dark:hidden"
+  src="/images/lotus-logo-light.png"
+  alt="LÖTUS Pilates Retreat"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/lotus-logo-dark.png"
+  alt="LÖTUS Pilates Retreat"
+/>
 
-## Setting up
+## Overview
 
-The first step to world-class documentation is setting up your editing environments.
+LÖTUS is an exclusive wellness and pilates retreat website that offers transformative experiences in stunning natural locations. This documentation provides comprehensive guidance for developers, designers, and content managers working on the LÖTUS platform.
 
 <CardGroup cols={2}>
-  <Card title="Edit Your Docs" icon="pen-to-square" href="https://mintlify.com/docs/quickstart">
-    Get your docs set up locally for easy development
+  <Card
+    title="Landing Page Components"
+    icon="palette"
+    href="/components/hero-section"
+  >
+    Explore the modular components that make up our beautiful landing page
   </Card>
-
-  <Card title="Preview Changes" icon="image" href="https://mintlify.com/docs/development">
-    Preview your changes before you push to make sure they're perfect
+  <Card
+    title="Booking APIs"
+    icon="calendar-check"
+    href="/api-reference/bookings/create-booking"
+  >
+    Integrate with our comprehensive booking and reservation system
+  </Card>
+  <Card
+    title="Retreat Management"
+    icon="spa"
+    href="/api-reference/retreats/list-retreats"
+  >
+    Manage retreat schedules, locations, and availability
+  </Card>
+  <Card
+    title="User Experience"
+    icon="users"
+    href="/api-reference/users/register"
+  >
+    Build seamless user registration and profile management
   </Card>
 </CardGroup>
 
-## Make it yours
+## Key Features
 
-Update your docs to your brand and add valuable content for the best user conversion.
+### 🎬 Immersive Hero Experience
+Our landing page features an optional 7-second promotional video showcasing helicopter arrivals, underwater barracuda footage, and healthy women practicing yoga/pilates, culminating in the powerful tagline "YOUR EXCLUSIVE WELLNESS AND PILATES RETREAT" with the LÖTUS logo.
+
+### 🌟 The LÖTUS Experience
+A curated section highlighting our core values and exclusive services, emphasizing:
+- **Commitment** to personal transformation
+- **Exclusive** experiences in pristine locations
+- **Health** and wellness optimization
+- **Care** through personalized attention
+- **Natural beauty** of our retreat destinations
+- **Harmony** between mind, body, and spirit
+
+### 🏝️ Next Event Showcase
+Dynamic presentation of upcoming retreats featuring:
+- Detailed location and date information
+- Villa photo carousels with availability status
+- Interactive booking capabilities
+- Real-time availability updates
+
+## Technical Architecture
+
+The LÖTUS platform is built with modern web technologies focusing on:
+
+- **Performance**: Fast loading times and smooth interactions
+- **Accessibility**: WCAG 2.1 AA compliance for inclusive experiences
+- **Mobile-First**: Responsive design optimized for all devices
+- **SEO**: Search engine optimized for maximum visibility
+- **Security**: Enterprise-grade security for booking and payment data
+
+## Quick Start
+
+<Steps>
+  <Step title="Environment Setup">
+    Clone the repository and install dependencies
+    ```bash
+    git clone https://github.com/lotus-retreats/website
+    cd website
+    npm install
+    ```
+  </Step>
+  <Step title="Configuration">
+    Set up your environment variables and API keys
+    ```bash
+    cp .env.example .env.local
+    # Edit .env.local with your configuration
+    ```
+  </Step>
+  <Step title="Development">
+    Start the development server
+    ```bash
+    npm run dev
+    ```
+  </Step>
+  <Step title="Deployment">
+    Build and deploy to your preferred platform
+    ```bash
+    npm run build
+    npm run deploy
+    ```
+  </Step>
+</Steps>
+
+## Support
+
+Need help with implementation or have questions about the LÖTUS platform?
 
 <CardGroup cols={2}>
-  <Card title="Customize Style" icon="palette" href="https://mintlify.com/docs/settings/global">
-    Customize your docs to your company's colors and brands
+  <Card
+    title="Technical Support"
+    icon="headset"
+    href="mailto:support@lotus-retreats.com"
+  >
+    Get help with API integration and technical issues
   </Card>
-
-  <Card title="Reference APIs" icon="code" href="https://mintlify.com/docs/api-playground/openapi">
-    Automatically generate endpoints from an OpenAPI spec
-  </Card>
-
-  <Card title="Add Components" icon="screwdriver-wrench" href="https://mintlify.com/docs/content/components/accordions">
-    Build interactive features and designs to guide your users
-  </Card>
-
-  <Card title="Get Inspiration" icon="stars" href="https://mintlify.com/customers">
-    Check out our showcase of our favorite documentation
+  <Card
+    title="Business Inquiries"
+    icon="handshake"
+    href="mailto:partnerships@lotus-retreats.com"
+  >
+    Discuss partnerships and business opportunities
   </Card>
 </CardGroup>
+
+---
+
+<Note>
+This documentation is continuously updated. Check the [GitHub repository](https://github.com/lotus-retreats/website) for the latest changes and contributions.
+</Note>

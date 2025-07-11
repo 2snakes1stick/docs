@@ -1,0 +1,706 @@
+---
+title: 'Booking Widget Component'
+description: 'Integrated booking widget for seamless retreat reservations with real-time availability'
+---
+
+# Booking Widget Component
+
+The Booking Widget is a sophisticated component that handles the entire reservation process, from initial inquiry to payment confirmation. It provides a seamless user experience with real-time availability checks and secure payment processing.
+
+## Overview
+
+The booking widget manages:
+- **Availability Checking**: Real-time retreat availability verification
+- **Guest Information**: Comprehensive guest details and preferences
+- **Payment Processing**: Secure payment handling with multiple options
+- **Confirmation Flow**: Booking confirmation and receipt generation
+
+<CardGroup cols={3}>
+  <Card title="Availability Check" icon="calendar-search">
+    Real-time retreat availability and pricing
+  </Card>
+  <Card title="Guest Details" icon="user-group">
+    Comprehensive guest information collection
+  </Card>
+  <Card title="Secure Payment" icon="shield-check">
+    PCI-compliant payment processing
+  </Card>
+</CardGroup>
+
+## Component API
+
+### Props
+
+```typescript
+interface BookingWidgetProps {
+  /** Pre-selected retreat event */
+  eventId?: string;
+  
+  /** Widget display mode */
+  mode?: 'inline' | 'modal' | 'fullscreen';
+  
+  /** Booking flow configuration */
+  config?: BookingConfig;
+  
+  /** Event handlers */
+  onBookingComplete?: (booking: Booking) => void;
+  onBookingError?: (error: BookingError) => void;
+  onStepChange?: (step: BookingStep) => void;
+  
+  /** UI customization */
+  theme?: 'light' | 'dark' | 'natural';
+  className?: string;
+}
+
+interface BookingConfig {
+  /** Available payment methods */
+  paymentMethods: PaymentMethod[];
+  
+  /** Required guest information fields */
+  requiredFields: GuestInfoField[];
+  
+  /** Booking terms and conditions */
+  termsUrl: string;
+  
+  /** Cancellation policy */
+  cancellationPolicy: string;
+  
+  /** Currency for pricing */
+  currency: string;
+  
+  /** Tax configuration */
+  taxConfig?: TaxConfig;
+}
+
+interface Booking {
+  id: string;
+  eventId: string;
+  guestInfo: GuestInfo;
+  paymentInfo: PaymentInfo;
+  totalAmount: number;
+  status: BookingStatus;
+  confirmationCode: string;
+  createdAt: string;
+}
+```
+
+### Default Configuration
+
+```typescript
+const defaultConfig: BookingConfig = {
+  paymentMethods: ['stripe', 'paypal', 'bank-transfer'],
+  requiredFields: [
+    'firstName', 'lastName', 'email', 'phone',
+    'emergencyContact', 'dietaryRestrictions'
+  ],
+  termsUrl: '/terms-and-conditions',
+  cancellationPolicy: 'flexible',
+  currency: 'USD',
+  taxConfig: {
+    rate: 0.08,
+    included: false
+  }
+};
+```
+
+## Implementation
+
+### Basic Usage
+
+```jsx
+import { BookingWidget } from '@/components/booking/booking-widget';
+
+export default function BookingPage() {
+  const handleBookingComplete = (booking) => {
+    // Redirect to confirmation page
+    router.push(`/booking/confirmation/${booking.id}`);
+  };
+  
+  return (
+    <BookingWidget
+      eventId="itacare-brazil-2024"
+      mode="fullscreen"
+      onBookingComplete={handleBookingComplete}
+    />
+  );
+}
+```
+
+### Modal Integration
+
+```jsx
+const [showBookingModal, setShowBookingModal] = useState(false);
+
+const openBookingModal = (eventId) => {
+  setSelectedEvent(eventId);
+  setShowBookingModal(true);
+};
+
+return (
+  <>
+    <button onClick={() => openBookingModal(event.id)}>
+      Book Now
+    </button>
+    
+    {showBookingModal && (
+      <Modal onClose={() => setShowBookingModal(false)}>
+        <BookingWidget
+          eventId={selectedEvent}
+          mode="modal"
+          onBookingComplete={(booking) => {
+            handleBookingComplete(booking);
+            setShowBookingModal(false);
+          }}
+        />
+      </Modal>
+    )}
+  </>
+);
+```
+
+## Booking Flow Steps
+
+### Step 1: Event Selection
+
+```jsx
+const EventSelectionStep = ({ onEventSelect, preSelectedEvent }) => {
+  const { data: events, isLoading } = useAvailableEvents();
+  
+  return (
+    <div className="booking-step event-selection">
+      <h2>Select Your Retreat</h2>
+      
+      {preSelectedEvent ? (
+        <SelectedEventCard
+          event={preSelectedEvent}
+          onEdit={() => setPreSelectedEvent(null)}
+        />
+      ) : (
+        <EventGrid
+          events={events}
+          onEventSelect={onEventSelect}
+          isLoading={isLoading}
+        />
+      )}
+      
+      <StepNavigation
+        onNext={() => validateAndProceed()}
+        nextDisabled={!selectedEvent}
+      />
+    </div>
+  );
+};
+```
+
+### Step 2: Guest Information
+
+```jsx
+const GuestInfoStep = ({ onGuestInfoSubmit, requiredFields }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  
+  return (
+    <form onSubmit={handleSubmit(onGuestInfoSubmit)} className="guest-info-form">
+      <h2>Guest Information</h2>
+      
+      <div className="form-grid">
+        <FormField
+          label="First Name"
+          {...register("firstName", { required: "First name is required" })}
+          error={errors.firstName}
+        />
+        
+        <FormField
+          label="Last Name"
+          {...register("lastName", { required: "Last name is required" })}
+          error={errors.lastName}
+        />
+        
+        <FormField
+          label="Email"
+          type="email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Invalid email address"
+            }
+          })}
+          error={errors.email}
+        />
+        
+        <FormField
+          label="Phone"
+          type="tel"
+          {...register("phone", { required: "Phone number is required" })}
+          error={errors.phone}
+        />
+      </div>
+      
+      <div className="additional-info">
+        <FormField
+          label="Dietary Restrictions"
+          as="textarea"
+          {...register("dietaryRestrictions")}
+          placeholder="Please list any dietary restrictions or allergies..."
+        />
+        
+        <FormField
+          label="Medical Conditions"
+          as="textarea"
+          {...register("medicalConditions")}
+          placeholder="Please list any medical conditions we should be aware of..."
+        />
+        
+        <FormField
+          label="Fitness Level"
+          as="select"
+          {...register("fitnessLevel")}
+        >
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </FormField>
+      </div>
+      
+      <EmergencyContactSection register={register} errors={errors} />
+      
+      <StepNavigation
+        onBack={goToPreviousStep}
+        onNext={handleSubmit(onGuestInfoSubmit)}
+      />
+    </form>
+  );
+};
+```
+
+### Step 3: Payment Processing
+
+```jsx
+const PaymentStep = ({ booking, onPaymentComplete }) => {
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('stripe');
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  return (
+    <div className="payment-step">
+      <h2>Payment Information</h2>
+      
+      <BookingSummary booking={booking} />
+      
+      <PaymentMethodSelector
+        methods={config.paymentMethods}
+        selected={selectedPaymentMethod}
+        onSelect={setSelectedPaymentMethod}
+      />
+      
+      {selectedPaymentMethod === 'stripe' && (
+        <StripePaymentForm
+          amount={booking.totalAmount}
+          currency={config.currency}
+          onSuccess={onPaymentComplete}
+          onError={handlePaymentError}
+          isProcessing={isProcessing}
+        />
+      )}
+      
+      {selectedPaymentMethod === 'paypal' && (
+        <PayPalButtons
+          amount={booking.totalAmount}
+          currency={config.currency}
+          onApprove={onPaymentComplete}
+          onError={handlePaymentError}
+        />
+      )}
+      
+      {selectedPaymentMethod === 'bank-transfer' && (
+        <BankTransferInstructions
+          booking={booking}
+          onConfirm={onPaymentComplete}
+        />
+      )}
+      
+      <TermsAndConditions
+        termsUrl={config.termsUrl}
+        cancellationPolicy={config.cancellationPolicy}
+      />
+    </div>
+  );
+};
+```
+
+## Payment Integration
+
+### Stripe Integration
+
+```jsx
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
+const StripePaymentForm = ({ amount, currency, onSuccess, onError }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    if (!stripe || !elements) return;
+    
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: elements.getElement(CardElement),
+    });
+    
+    if (error) {
+      onError(error);
+      return;
+    }
+    
+    // Create payment intent on server
+    const { clientSecret } = await createPaymentIntent({
+      amount: amount * 100, // Convert to cents
+      currency,
+      paymentMethodId: paymentMethod.id
+    });
+    
+    const { error: confirmError } = await stripe.confirmCardPayment(clientSecret);
+    
+    if (confirmError) {
+      onError(confirmError);
+    } else {
+      onSuccess({ paymentMethod, clientSecret });
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="stripe-form">
+      <CardElement
+        options={{
+          style: {
+            base: {
+              fontSize: '16px',
+              color: '#424770',
+              '::placeholder': {
+                color: '#aab7c4',
+              },
+            },
+          },
+        }}
+      />
+      
+      <button
+        type="submit"
+        disabled={!stripe || isProcessing}
+        className="payment-submit-btn"
+      >
+        {isProcessing ? 'Processing...' : `Pay ${formatCurrency(amount, currency)}`}
+      </button>
+    </form>
+  );
+};
+```
+
+### PayPal Integration
+
+```jsx
+import { PayPalButtons } from '@paypal/react-paypal-js';
+
+const PayPalPayment = ({ amount, currency, onApprove, onError }) => {
+  return (
+    <PayPalButtons
+      style={{ layout: 'vertical' }}
+      createOrder={(data, actions) => {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: amount.toString(),
+              currency_code: currency
+            }
+          }]
+        });
+      }}
+      onApprove={async (data, actions) => {
+        const details = await actions.order.capture();
+        onApprove(details);
+      }}
+      onError={onError}
+      onCancel={() => {
+        console.log('PayPal payment cancelled');
+      }}
+    />
+  );
+};
+```
+
+## Real-time Features
+
+### Availability Checking
+
+```jsx
+const useRealTimeAvailability = (eventId) => {
+  const [availability, setAvailability] = useState(null);
+  const [isChecking, setIsChecking] = useState(false);
+  
+  const checkAvailability = useCallback(async () => {
+    setIsChecking(true);
+    try {
+      const response = await fetch(`/api/events/${eventId}/availability`);
+      const data = await response.json();
+      setAvailability(data);
+    } catch (error) {
+      console.error('Availability check failed:', error);
+    } finally {
+      setIsChecking(false);
+    }
+  }, [eventId]);
+  
+  useEffect(() => {
+    if (eventId) {
+      checkAvailability();
+      
+      // Set up real-time updates
+      const ws = new WebSocket(`${WS_URL}/availability/${eventId}`);
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setAvailability(data.availability);
+      };
+      
+      return () => ws.close();
+    }
+  }, [eventId, checkAvailability]);
+  
+  return { availability, isChecking, checkAvailability };
+};
+```
+
+### Booking Timer
+
+```jsx
+const BookingTimer = ({ duration = 900, onExpire }) => { // 15 minutes
+  const [timeLeft, setTimeLeft] = useState(duration);
+  
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      onExpire();
+      return;
+    }
+    
+    const timer = setTimeout(() => {
+      setTimeLeft(timeLeft - 1);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [timeLeft, onExpire]);
+  
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+  
+  return (
+    <div className={`booking-timer ${timeLeft < 60 ? 'urgent' : ''}`}>
+      <Clock className="timer-icon" />
+      <span>Time remaining: {formatTime(timeLeft)}</span>
+    </div>
+  );
+};
+```
+
+## Form Validation
+
+### Validation Schema
+
+```typescript
+import { z } from 'zod';
+
+const guestInfoSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  dateOfBirth: z.string().refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    return age >= 18;
+  }, 'Must be at least 18 years old'),
+  emergencyContact: z.object({
+    name: z.string().min(1, 'Emergency contact name is required'),
+    phone: z.string().min(10, 'Emergency contact phone is required'),
+    relationship: z.string().min(1, 'Relationship is required')
+  }),
+  dietaryRestrictions: z.string().optional(),
+  medicalConditions: z.string().optional(),
+  fitnessLevel: z.enum(['beginner', 'intermediate', 'advanced'])
+});
+```
+
+### Custom Validation Hooks
+
+```jsx
+const useFormValidation = (schema) => {
+  const [errors, setErrors] = useState({});
+  
+  const validate = (data) => {
+    try {
+      schema.parse(data);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = {};
+        error.errors.forEach((err) => {
+          fieldErrors[err.path.join('.')] = err.message;
+        });
+        setErrors(fieldErrors);
+      }
+      return false;
+    }
+  };
+  
+  const getFieldError = (fieldName) => errors[fieldName];
+  
+  return { validate, getFieldError, errors };
+};
+```
+
+## Error Handling
+
+### Error Boundary
+
+```jsx
+class BookingErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  
+  componentDidCatch(error, errorInfo) {
+    console.error('Booking widget error:', error, errorInfo);
+    
+    // Send error to monitoring service
+    analytics.track('booking_error', {
+      error: error.message,
+      errorInfo,
+      userId: this.props.userId
+    });
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="booking-error">
+          <h2>Something went wrong</h2>
+          <p>We're sorry, but there was an error processing your booking.</p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    
+    return this.props.children;
+  }
+}
+```
+
+### Error Recovery
+
+```jsx
+const useBookingRecovery = () => {
+  const [savedBooking, setSavedBooking] = useState(null);
+  
+  const saveBookingState = (bookingData) => {
+    localStorage.setItem('lotus_booking_draft', JSON.stringify({
+      ...bookingData,
+      timestamp: Date.now()
+    }));
+  };
+  
+  const recoverBookingState = () => {
+    const saved = localStorage.getItem('lotus_booking_draft');
+    if (saved) {
+      const booking = JSON.parse(saved);
+      // Check if booking is not too old (e.g., 1 hour)
+      if (Date.now() - booking.timestamp < 3600000) {
+        setSavedBooking(booking);
+        return booking;
+      }
+    }
+    return null;
+  };
+  
+  const clearSavedBooking = () => {
+    localStorage.removeItem('lotus_booking_draft');
+    setSavedBooking(null);
+  };
+  
+  return { saveBookingState, recoverBookingState, clearSavedBooking, savedBooking };
+};
+```
+
+## Testing
+
+### Component Tests
+
+```typescript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BookingWidget } from './booking-widget';
+
+const mockEvent = {
+  id: "test-event",
+  title: "Test Retreat",
+  pricing: { basePrice: 1000, currency: "USD" }
+};
+
+describe('BookingWidget', () => {
+  it('progresses through booking steps', async () => {
+    render(<BookingWidget eventId={mockEvent.id} />);
+    
+    // Step 1: Event selection
+    expect(screen.getByText('Select Your Retreat')).toBeInTheDocument();
+    
+    // Step 2: Guest information
+    fireEvent.click(screen.getByText('Next'));
+    await waitFor(() => {
+      expect(screen.getByText('Guest Information')).toBeInTheDocument();
+    });
+    
+    // Fill form and proceed
+    fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com' } });
+    
+    fireEvent.click(screen.getByText('Next'));
+    
+    // Step 3: Payment
+    await waitFor(() => {
+      expect(screen.getByText('Payment Information')).toBeInTheDocument();
+    });
+  });
+  
+  it('validates required fields', async () => {
+    render(<BookingWidget eventId={mockEvent.id} />);
+    
+    fireEvent.click(screen.getByText('Next')); // Skip to guest info
+    fireEvent.click(screen.getByText('Next')); // Try to proceed without filling
+    
+    await waitFor(() => {
+      expect(screen.getByText('First name is required')).toBeInTheDocument();
+    });
+  });
+});
+```
+
+---
+
+<Note>
+The Booking Widget is the core conversion component. Ensure all payment integrations are thoroughly tested and comply with PCI DSS standards.
+</Note>

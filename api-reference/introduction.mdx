@@ -1,33 +1,417 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference Introduction'
+description: 'Comprehensive API documentation for the LÖTUS Pilates retreat platform'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+# LÖTUS API Reference
 
-## Welcome
+Welcome to the LÖTUS API documentation. Our REST API provides comprehensive access to retreat management, booking systems, user accounts, and content management for the LÖTUS Pilates retreat platform.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## API Overview
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+The LÖTUS API is designed with simplicity and security in mind, providing developers with powerful tools to integrate with our retreat booking and management system.
+
+<CardGroup cols={2}>
+  <Card
+    title="Booking Management"
+    icon="calendar-check"
+    href="/api-reference/bookings/create-booking"
+  >
+    Complete booking lifecycle from creation to confirmation
+  </Card>
+  <Card
+    title="Retreat Operations"
+    icon="spa"
+    href="/api-reference/retreats/list-retreats"
+  >
+    Manage retreat schedules, availability, and details
+  </Card>
+  <Card
+    title="User Accounts"
+    icon="users"
+    href="/api-reference/users/register"
+  >
+    User registration, authentication, and profile management
+  </Card>
+  <Card
+    title="Content Management"
+    icon="edit"
+    href="/api-reference/content/get-content"
+  >
+    Dynamic content for landing pages and experiences
+  </Card>
+</CardGroup>
+
+## Base URL
+
+All API requests are made to:
+
+```
+https://api.lotus-retreats.com/v1
+```
+
+For development and testing:
+
+```
+https://api-staging.lotus-retreats.com/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+The LÖTUS API uses JWT-based authentication with role-based access control. Include your authentication token in the Authorization header:
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+### Authentication Flow
+
+<Steps>
+  <Step title="Get Access Token">
+    Authenticate with email/password to receive JWT token
+    ```bash
+    curl -X POST https://api.lotus-retreats.com/v1/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"email": "user@example.com", "password": "password"}'
+    ```
+  </Step>
+  
+  <Step title="Include in Requests">
+    Add the token to the Authorization header
+    ```bash
+    curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ```
+  </Step>
+  
+  <Step title="Refresh When Needed">
+    Use refresh token to get new access token before expiration
+    ```bash
+    curl -X POST https://api.lotus-retreats.com/v1/auth/refresh \
+      -H "Authorization: Bearer REFRESH_TOKEN"
+    ```
+  </Step>
+</Steps>
+
+## Request Format
+
+### Content Type
+
+All requests should use JSON format:
+
+```http
+Content-Type: application/json
+```
+
+### Request Structure
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "data": {
+    // Your request payload
+  },
+  "meta": {
+    "client_version": "1.0.0",
+    "request_id": "unique-request-id"
   }
-]
+}
 ```
+
+## Response Format
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": {
+    // Response data
+  },
+  "meta": {
+    "request_id": "req_123456789",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "version": "1.0.0"
+  }
+}
+```
+
+### Paginated Response
+
+```json
+{
+  "success": true,
+  "data": [
+    // Array of items
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 150,
+      "total_pages": 8,
+      "has_next": true,
+      "has_previous": false
+    }
+  },
+  "links": {
+    "self": "/api/v1/retreats?page=1",
+    "next": "/api/v1/retreats?page=2",
+    "previous": null,
+    "first": "/api/v1/retreats?page=1",
+    "last": "/api/v1/retreats?page=8"
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The provided data is invalid",
+    "details": {
+      "email": ["Email is required"],
+      "phone": ["Phone number must be valid"]
+    },
+    "documentation_url": "https://docs.lotus-retreats.com/errors#validation-error"
+  },
+  "meta": {
+    "request_id": "req_123456789",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+## Error Codes
+
+<AccordionGroup>
+  <Accordion title="Authentication Errors (401)">
+    - `INVALID_TOKEN`: JWT token is invalid or expired
+    - `MISSING_TOKEN`: No authentication token provided
+    - `INSUFFICIENT_PERMISSIONS`: User lacks required permissions
+  </Accordion>
+  
+  <Accordion title="Validation Errors (400)">
+    - `VALIDATION_ERROR`: Request data failed validation
+    - `MISSING_REQUIRED_FIELD`: Required field not provided
+    - `INVALID_FORMAT`: Data format is incorrect
+  </Accordion>
+  
+  <Accordion title="Business Logic Errors (422)">
+    - `RETREAT_FULLY_BOOKED`: No availability for requested retreat
+    - `BOOKING_DEADLINE_PASSED`: Booking window has closed
+    - `PAYMENT_FAILED`: Payment processing failed
+  </Accordion>
+  
+  <Accordion title="Server Errors (500)">
+    - `INTERNAL_SERVER_ERROR`: Unexpected server error
+    - `SERVICE_UNAVAILABLE`: External service temporarily unavailable
+    - `DATABASE_ERROR`: Database operation failed
+  </Accordion>
+</AccordionGroup>
+
+## Rate Limiting
+
+API requests are rate-limited to ensure fair usage and system stability:
+
+- **Free Tier**: 100 requests per hour
+- **Basic Plan**: 1,000 requests per hour  
+- **Premium Plan**: 10,000 requests per hour
+- **Enterprise**: Custom limits
+
+Rate limit headers are included in responses:
+
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1609459200
+X-RateLimit-Window: 3600
+```
+
+## Pagination
+
+List endpoints support pagination with the following parameters:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | integer | 1 | Page number to retrieve |
+| `limit` | integer | 20 | Number of items per page (max 100) |
+| `sort` | string | `created_at` | Field to sort by |
+| `order` | string | `desc` | Sort order (`asc` or `desc`) |
+
+Example:
+```
+GET /api/v1/retreats?page=2&limit=10&sort=start_date&order=asc
+```
+
+## Filtering and Search
+
+Many endpoints support filtering and search capabilities:
+
+### Date Range Filtering
+```
+GET /api/v1/retreats?start_date_from=2024-03-01&start_date_to=2024-06-01
+```
+
+### Location Filtering
+```
+GET /api/v1/retreats?location=brazil&city=itacare
+```
+
+### Search
+```
+GET /api/v1/retreats?search=coastal+harmony
+```
+
+### Status Filtering
+```
+GET /api/v1/bookings?status=confirmed&payment_status=paid
+```
+
+## Webhooks
+
+LÖTUS API supports webhooks for real-time notifications of important events:
+
+### Supported Events
+
+- `booking.created` - New booking created
+- `booking.confirmed` - Booking confirmed and paid
+- `booking.cancelled` - Booking cancelled
+- `payment.succeeded` - Payment successfully processed
+- `payment.failed` - Payment processing failed
+- `retreat.capacity_changed` - Retreat availability updated
+
+### Webhook Configuration
+
+```json
+{
+  "url": "https://your-app.com/webhooks/lotus",
+  "events": ["booking.created", "payment.succeeded"],
+  "secret": "your-webhook-secret",
+  "active": true
+}
+```
+
+### Webhook Payload
+
+```json
+{
+  "id": "evt_1234567890",
+  "type": "booking.created",
+  "created": 1609459200,
+  "data": {
+    "object": {
+      // Booking or related object
+    }
+  },
+  "livemode": true
+}
+```
+
+## SDKs and Libraries
+
+Official SDKs are available for popular programming languages:
+
+<CardGroup cols={2}>
+  <Card title="JavaScript/Node.js" icon="js">
+    ```bash
+    npm install @lotus-retreats/sdk
+    ```
+  </Card>
+  <Card title="Python" icon="python">
+    ```bash
+    pip install lotus-retreats-sdk
+    ```
+  </Card>
+  <Card title="PHP" icon="php">
+    ```bash
+    composer require lotus-retreats/sdk
+    ```
+  </Card>
+  <Card title="Go" icon="golang">
+    ```bash
+    go get github.com/lotus-retreats/go-sdk
+    ```
+  </Card>
+</CardGroup>
+
+### JavaScript SDK Example
+
+```javascript
+import { LotusAPI } from '@lotus-retreats/sdk';
+
+const lotus = new LotusAPI({
+  apiKey: 'your-api-key',
+  environment: 'production' // or 'staging'
+});
+
+// Create a booking
+const booking = await lotus.bookings.create({
+  retreat_id: 'ret_123',
+  guest_info: {
+    first_name: 'Jane',
+    last_name: 'Doe',
+    email: 'jane@example.com'
+  }
+});
+```
+
+## Testing
+
+### Test Environment
+
+Use our staging environment for development and testing:
+
+```
+Base URL: https://api-staging.lotus-retreats.com/v1
+```
+
+### Test Data
+
+Test retreats and user accounts are available in staging:
+
+```json
+{
+  "test_retreat_id": "ret_test_123",
+  "test_user": {
+    "email": "test@lotus-retreats.com",
+    "password": "test123"
+  }
+}
+```
+
+### Test Credit Cards
+
+Use these test card numbers for payment testing:
+
+- **Success**: `4242424242424242`
+- **Declined**: `4000000000000002`
+- **Insufficient Funds**: `4000000000009995`
+
+## Support
+
+Need help with the API? We're here to assist:
+
+<CardGroup cols={2}>
+  <Card
+    title="Developer Support"
+    icon="code"
+    href="mailto:developers@lotus-retreats.com"
+  >
+    Technical questions and integration help
+  </Card>
+  <Card
+    title="API Status"
+    icon="activity"
+    href="https://status.lotus-retreats.com"
+  >
+    Real-time API status and incident reports
+  </Card>
+</CardGroup>
+
+---
+
+<Note>
+This API reference is continuously updated. Subscribe to our [developer newsletter](https://lotus-retreats.com/developers) for the latest updates and best practices.
+</Note>

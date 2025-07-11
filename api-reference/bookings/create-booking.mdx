@@ -1,0 +1,567 @@
+---
+title: 'Create Booking'
+openapi: 'POST /api/v1/bookings'
+description: 'Create a new retreat booking with guest information and payment processing'
+---
+
+# Create Booking
+
+Creates a new booking for a retreat. This endpoint handles the complete booking process including guest information validation, availability checking, and payment processing initiation.
+
+## Endpoint
+
+```http
+POST /api/v1/bookings
+```
+
+## Authentication
+
+This endpoint requires authentication. Include your JWT token in the Authorization header.
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+## Request Body
+
+### Required Fields
+
+<ParamField body="retreat_id" type="string" required>
+  The unique identifier of the retreat to book
+</ParamField>
+
+<ParamField body="guest_info" type="object" required>
+  Complete guest information object
+  
+  <Expandable title="Guest Info Properties">
+    <ParamField body="guest_info.first_name" type="string" required>
+      Guest's first name (minimum 1 character)
+    </ParamField>
+    
+    <ParamField body="guest_info.last_name" type="string" required>
+      Guest's last name (minimum 1 character)
+    </ParamField>
+    
+    <ParamField body="guest_info.email" type="string" required>
+      Valid email address for booking confirmation
+    </ParamField>
+    
+    <ParamField body="guest_info.phone" type="string" required>
+      Phone number including country code
+    </ParamField>
+    
+    <ParamField body="guest_info.date_of_birth" type="string" required>
+      Date of birth in YYYY-MM-DD format (must be 18+ years old)
+    </ParamField>
+    
+    <ParamField body="guest_info.emergency_contact" type="object" required>
+      Emergency contact information
+      
+      <ParamField body="guest_info.emergency_contact.name" type="string" required>
+        Emergency contact full name
+      </ParamField>
+      
+      <ParamField body="guest_info.emergency_contact.phone" type="string" required>
+        Emergency contact phone number
+      </ParamField>
+      
+      <ParamField body="guest_info.emergency_contact.relationship" type="string" required>
+        Relationship to guest (e.g., "spouse", "parent", "friend")
+      </ParamField>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Optional Fields
+
+<ParamField body="guest_info.dietary_restrictions" type="string">
+  Any dietary restrictions or allergies
+</ParamField>
+
+<ParamField body="guest_info.medical_conditions" type="string">
+  Medical conditions staff should be aware of
+</ParamField>
+
+<ParamField body="guest_info.fitness_level" type="string">
+  Self-assessed fitness level: "beginner", "intermediate", or "advanced"
+</ParamField>
+
+<ParamField body="guest_info.special_requests" type="string">
+  Any special requests or accommodations needed
+</ParamField>
+
+<ParamField body="number_of_guests" type="integer" default="1">
+  Number of guests for this booking (default: 1)
+</ParamField>
+
+<ParamField body="promo_code" type="string">
+  Promotional code for discounts
+</ParamField>
+
+<ParamField body="preferred_room_type" type="string">
+  Preferred accommodation type if available
+</ParamField>
+
+## Request Example
+
+<CodeGroup>
+
+```json Basic Booking
+{
+  "retreat_id": "ret_itacare_brazil_2024",
+  "guest_info": {
+    "first_name": "Sarah",
+    "last_name": "Johnson",
+    "email": "sarah.johnson@email.com",
+    "phone": "+1-555-123-4567",
+    "date_of_birth": "1985-03-15",
+    "emergency_contact": {
+      "name": "Michael Johnson",
+      "phone": "+1-555-987-6543",
+      "relationship": "spouse"
+    },
+    "dietary_restrictions": "Vegetarian, no dairy",
+    "medical_conditions": "None",
+    "fitness_level": "intermediate",
+    "special_requests": "Ground floor room if possible"
+  },
+  "number_of_guests": 1,
+  "preferred_room_type": "ocean_view"
+}
+```
+
+```json Group Booking
+{
+  "retreat_id": "ret_itacare_brazil_2024",
+  "guest_info": {
+    "first_name": "Emily",
+    "last_name": "Chen",
+    "email": "emily.chen@email.com",
+    "phone": "+1-555-234-5678",
+    "date_of_birth": "1990-07-22",
+    "emergency_contact": {
+      "name": "David Chen",
+      "phone": "+1-555-876-5432",
+      "relationship": "brother"
+    },
+    "dietary_restrictions": "Gluten-free",
+    "fitness_level": "beginner"
+  },
+  "number_of_guests": 2,
+  "promo_code": "FRIEND20"
+}
+```
+
+```bash cURL
+curl -X POST https://api.lotus-retreats.com/v1/bookings \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "retreat_id": "ret_itacare_brazil_2024",
+    "guest_info": {
+      "first_name": "Sarah",
+      "last_name": "Johnson",
+      "email": "sarah.johnson@email.com",
+      "phone": "+1-555-123-4567",
+      "date_of_birth": "1985-03-15",
+      "emergency_contact": {
+        "name": "Michael Johnson",
+        "phone": "+1-555-987-6543",
+        "relationship": "spouse"
+      },
+      "fitness_level": "intermediate"
+    }
+  }'
+```
+
+</CodeGroup>
+
+## Response
+
+### Success Response (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "book_abc123def456",
+    "confirmation_code": "LOTUS-2024-ABC123",
+    "retreat_id": "ret_itacare_brazil_2024",
+    "guest_info": {
+      "first_name": "Sarah",
+      "last_name": "Johnson",
+      "email": "sarah.johnson@email.com",
+      "phone": "+1-555-123-4567",
+      "date_of_birth": "1985-03-15",
+      "emergency_contact": {
+        "name": "Michael Johnson",
+        "phone": "+1-555-987-6543",
+        "relationship": "spouse"
+      },
+      "dietary_restrictions": "Vegetarian, no dairy",
+      "medical_conditions": "None",
+      "fitness_level": "intermediate",
+      "special_requests": "Ground floor room if possible"
+    },
+    "retreat_details": {
+      "title": "Coastal Harmony Retreat",
+      "location": {
+        "name": "Villa Serenidade",
+        "city": "Itacaré",
+        "country": "Brazil"
+      },
+      "dates": {
+        "start_date": "2024-03-15",
+        "end_date": "2024-03-22",
+        "duration_days": 7
+      }
+    },
+    "booking_details": {
+      "number_of_guests": 1,
+      "room_type": "ocean_view",
+      "total_amount": 2800.00,
+      "currency": "USD",
+      "includes": [
+        "Accommodation",
+        "All Meals",
+        "Daily Pilates Sessions",
+        "Spa Treatments",
+        "Airport Transfers"
+      ]
+    },
+    "payment": {
+      "status": "pending",
+      "payment_intent_id": "pi_1234567890",
+      "amount_due": 2800.00,
+      "due_date": "2024-01-20T23:59:59Z",
+      "payment_url": "https://checkout.lotus-retreats.com/book_abc123def456"
+    },
+    "status": "pending_payment",
+    "created_at": "2024-01-15T10:30:00Z",
+    "expires_at": "2024-01-15T11:00:00Z"
+  },
+  "meta": {
+    "request_id": "req_create_booking_789",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  Unique booking identifier
+</ResponseField>
+
+<ResponseField name="confirmation_code" type="string">
+  Human-readable confirmation code for the booking
+</ResponseField>
+
+<ResponseField name="retreat_id" type="string">
+  ID of the booked retreat
+</ResponseField>
+
+<ResponseField name="guest_info" type="object">
+  Complete guest information as submitted
+</ResponseField>
+
+<ResponseField name="retreat_details" type="object">
+  Summary of retreat information including title, location, and dates
+</ResponseField>
+
+<ResponseField name="booking_details" type="object">
+  Booking specifics including pricing, inclusions, and accommodations
+</ResponseField>
+
+<ResponseField name="payment" type="object">
+  Payment information and next steps
+  
+  <Expandable title="Payment Object">
+    <ResponseField name="payment.status" type="string">
+      Current payment status: "pending", "processing", "completed", "failed"
+    </ResponseField>
+    
+    <ResponseField name="payment.payment_intent_id" type="string">
+      Stripe payment intent ID for processing
+    </ResponseField>
+    
+    <ResponseField name="payment.amount_due" type="number">
+      Total amount due for the booking
+    </ResponseField>
+    
+    <ResponseField name="payment.due_date" type="string">
+      ISO 8601 timestamp when payment is due
+    </ResponseField>
+    
+    <ResponseField name="payment.payment_url" type="string">
+      Secure checkout URL to complete payment
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Overall booking status: "pending_payment", "confirmed", "cancelled"
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when booking was created
+</ResponseField>
+
+<ResponseField name="expires_at" type="string">
+  ISO 8601 timestamp when booking expires if unpaid
+</ResponseField>
+
+## Error Responses
+
+### Validation Error (400)
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "The provided data is invalid",
+    "details": {
+      "guest_info.email": ["Email is required and must be valid"],
+      "guest_info.date_of_birth": ["Guest must be at least 18 years old"],
+      "retreat_id": ["Retreat ID is required"]
+    }
+  },
+  "meta": {
+    "request_id": "req_create_booking_789",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Retreat Unavailable (422)
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RETREAT_UNAVAILABLE",
+    "message": "The selected retreat is not available for booking",
+    "details": {
+      "retreat_id": "ret_itacare_brazil_2024",
+      "reason": "fully_booked",
+      "available_spots": 0,
+      "next_available_dates": [
+        {
+          "start_date": "2024-04-12",
+          "end_date": "2024-04-19",
+          "available_spots": 8
+        }
+      ]
+    }
+  }
+}
+```
+
+### Authentication Error (401)
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTHENTICATION_REQUIRED",
+    "message": "Valid authentication token is required",
+    "documentation_url": "https://docs.lotus-retreats.com/authentication"
+  }
+}
+```
+
+## Booking Process Flow
+
+<Steps>
+  <Step title="Submit Booking Request">
+    Send POST request with guest information and retreat ID
+  </Step>
+  
+  <Step title="Validation & Availability Check">
+    System validates data and checks retreat availability in real-time
+  </Step>
+  
+  <Step title="Booking Creation">
+    If valid and available, booking is created with "pending_payment" status
+  </Step>
+  
+  <Step title="Payment Processing">
+    Guest redirected to secure payment URL to complete transaction
+  </Step>
+  
+  <Step title="Confirmation">
+    Upon successful payment, booking status changes to "confirmed"
+  </Step>
+</Steps>
+
+## Business Logic
+
+### Age Validation
+
+- All guests must be at least 18 years old
+- Date of birth is validated against current date
+- Age calculation considers leap years
+
+### Availability Checking
+
+- Real-time availability is checked before booking creation
+- Bookings are held for 30 minutes to allow payment completion
+- Concurrent booking attempts are handled with proper locking
+
+### Pricing Calculation
+
+- Base price is retrieved from retreat configuration
+- Promotional codes are applied if valid and not expired
+- Additional guest fees are calculated automatically
+- All pricing includes applicable taxes
+
+### Booking Expiration
+
+- Unpaid bookings expire after 30 minutes
+- Expired bookings automatically release held spots
+- Email reminders are sent 15 minutes before expiration
+
+## Integration Examples
+
+### JavaScript/React
+
+```javascript
+import { LotusAPI } from '@lotus-retreats/sdk';
+
+const createBooking = async (bookingData) => {
+  try {
+    const booking = await LotusAPI.bookings.create(bookingData);
+    
+    // Redirect to payment
+    window.location.href = booking.payment.payment_url;
+    
+    return booking;
+  } catch (error) {
+    if (error.code === 'RETREAT_UNAVAILABLE') {
+      // Show alternative dates
+      showAlternativeDates(error.details.next_available_dates);
+    } else {
+      // Handle other errors
+      showErrorMessage(error.message);
+    }
+  }
+};
+```
+
+### Python
+
+```python
+import lotus_retreats
+
+client = lotus_retreats.Client(api_key='your_api_key')
+
+try:
+    booking = client.bookings.create({
+        'retreat_id': 'ret_itacare_brazil_2024',
+        'guest_info': {
+            'first_name': 'Sarah',
+            'last_name': 'Johnson',
+            'email': 'sarah@example.com',
+            # ... other fields
+        }
+    })
+    
+    print(f"Booking created: {booking.confirmation_code}")
+    
+except lotus_retreats.ValidationError as e:
+    print(f"Validation error: {e.details}")
+    
+except lotus_retreats.RetreatUnavailableError as e:
+    print(f"Retreat unavailable: {e.reason}")
+```
+
+## Webhooks
+
+When a booking is created, the following webhook events are triggered:
+
+- `booking.created` - Immediately after booking creation
+- `booking.payment_pending` - When payment is required
+- `booking.confirmed` - When payment is successfully processed
+- `booking.expired` - If booking expires without payment
+
+### Webhook Payload Example
+
+```json
+{
+  "id": "evt_booking_created_123",
+  "type": "booking.created",
+  "created": 1705320600,
+  "data": {
+    "object": {
+      "id": "book_abc123def456",
+      "confirmation_code": "LOTUS-2024-ABC123",
+      "status": "pending_payment",
+      // ... full booking object
+    }
+  },
+  "livemode": true
+}
+```
+
+## Rate Limiting
+
+This endpoint has specific rate limits:
+
+- **Authenticated users**: 10 booking attempts per hour
+- **Anonymous users**: 3 booking attempts per hour per IP
+- **Burst limit**: 3 requests per minute
+
+Rate limit headers:
+```http
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 9
+X-RateLimit-Reset: 1705324200
+```
+
+## Testing
+
+### Test Data
+
+Use these test retreat IDs in staging:
+
+- `ret_test_available` - Always available retreat
+- `ret_test_limited` - Limited availability (2 spots)
+- `ret_test_full` - Fully booked retreat
+- `ret_test_expired` - Expired retreat (past dates)
+
+### Test Scenarios
+
+```javascript
+// Test successful booking
+const successBooking = await createBooking({
+  retreat_id: 'ret_test_available',
+  guest_info: testGuestInfo
+});
+
+// Test fully booked retreat
+try {
+  await createBooking({
+    retreat_id: 'ret_test_full',
+    guest_info: testGuestInfo
+  });
+} catch (error) {
+  assert(error.code === 'RETREAT_UNAVAILABLE');
+}
+
+// Test validation errors
+try {
+  await createBooking({
+    retreat_id: 'ret_test_available',
+    guest_info: { email: 'invalid-email' }
+  });
+} catch (error) {
+  assert(error.code === 'VALIDATION_ERROR');
+}
+```
+
+---
+
+<Note>
+Bookings are held for 30 minutes to allow payment completion. Ensure your integration handles the payment flow within this timeframe to avoid booking expiration.
+</Note>

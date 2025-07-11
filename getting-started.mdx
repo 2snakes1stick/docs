@@ -1,0 +1,417 @@
+---
+title: 'Getting Started'
+description: 'Quick start guide for developers working with the LÖTUS Pilates retreat platform'
+---
+
+# Getting Started
+
+This guide will help you set up your development environment and start building with the LÖTUS platform.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+<AccordionGroup>
+  <Accordion title="Required Software">
+    - **Node.js**: Version 18.0 or higher
+    - **npm**: Version 8.0 or higher (or yarn/pnpm)
+    - **Git**: For version control
+    - **Docker**: For local development environment (optional)
+    - **PostgreSQL**: Version 14 or higher (or use Docker)
+  </Accordion>
+  
+  <Accordion title="Development Tools">
+    - **VSCode**: Recommended IDE with extensions
+    - **Postman**: For API testing
+    - **Chrome DevTools**: For debugging
+    - **React DevTools**: Browser extension
+  </Accordion>
+</AccordionGroup>
+
+## Project Setup
+
+### 1. Clone the Repository
+
+```bash
+# Clone the main repository
+git clone https://github.com/lotus-retreats/website.git
+cd website
+
+# Clone the API repository (if separate)
+git clone https://github.com/lotus-retreats/api.git
+cd api
+```
+
+### 2. Environment Configuration
+
+Create your environment files:
+
+<CodeGroup>
+
+```bash .env.local (Frontend)
+# Next.js Configuration
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Third-party Services
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...
+NEXT_PUBLIC_ANALYTICS_ID=G-...
+
+# Image Optimization
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=lotus-retreats
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=retreat-images
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_VIDEO_HERO=true
+NEXT_PUBLIC_ENABLE_CHAT_WIDGET=false
+```
+
+```bash .env (Backend)
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/lotus_retreats
+REDIS_URL=redis://localhost:6379
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=7d
+REFRESH_TOKEN_EXPIRES_IN=30d
+
+# Payment Processing
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Email Service
+SENDGRID_API_KEY=SG...
+FROM_EMAIL=noreply@lotus-retreats.com
+
+# File Upload
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=...
+AWS_S3_BUCKET=lotus-retreat-assets
+AWS_REGION=us-east-1
+```
+
+</CodeGroup>
+
+### 3. Install Dependencies
+
+<Tabs>
+  <Tab title="Frontend">
+    ```bash
+    cd website
+    npm install
+    
+    # Install additional development tools
+    npm install -D @types/node @types/react @types/react-dom
+    npm install -D eslint prettier husky lint-staged
+    ```
+  </Tab>
+  
+  <Tab title="Backend">
+    ```bash
+    cd api
+    npm install
+    
+    # Install global tools
+    npm install -g prisma
+    npm install -g pm2
+    ```
+  </Tab>
+</Tabs>
+
+### 4. Database Setup
+
+<Steps>
+  <Step title="Start PostgreSQL">
+    Using Docker (recommended):
+    ```bash
+    docker run --name lotus-postgres \
+      -e POSTGRES_DB=lotus_retreats \
+      -e POSTGRES_USER=lotus \
+      -e POSTGRES_PASSWORD=your_password \
+      -p 5432:5432 \
+      -d postgres:14
+    ```
+  </Step>
+  
+  <Step title="Run Migrations">
+    ```bash
+    cd api
+    npx prisma migrate dev
+    npx prisma generate
+    ```
+  </Step>
+  
+  <Step title="Seed Database">
+    ```bash
+    npx prisma db seed
+    ```
+  </Step>
+</Steps>
+
+## Development Workflow
+
+### Starting the Development Servers
+
+<CodeGroup>
+
+```bash Frontend
+cd website
+npm run dev
+
+# Server will start on http://localhost:3000
+# Hot reload enabled for instant feedback
+```
+
+```bash Backend
+cd api
+npm run dev
+
+# API server will start on http://localhost:3001
+# Auto-restart on file changes with nodemon
+```
+
+```bash Full Stack (Docker)
+# Start all services with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+```
+
+</CodeGroup>
+
+### Testing Your Setup
+
+Visit these URLs to verify everything is working:
+
+<CardGroup cols={2}>
+  <Card title="Frontend" icon="browser" href="http://localhost:3000">
+    Main website interface
+  </Card>
+  <Card title="API Health" icon="heartbeat" href="http://localhost:3001/health">
+    Backend health check
+  </Card>
+  <Card title="API Docs" icon="book" href="http://localhost:3001/docs">
+    Interactive API documentation
+  </Card>
+  <Card title="Database Admin" icon="database" href="http://localhost:5555">
+    Prisma Studio (run `npx prisma studio`)
+  </Card>
+</CardGroup>
+
+## VSCode Configuration
+
+Create `.vscode/settings.json` for optimal development experience:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}
+```
+
+### Recommended Extensions
+
+Install these VSCode extensions for the best development experience:
+
+```json
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "prisma.prisma",
+    "ms-vscode.vscode-json",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense"
+  ]
+}
+```
+
+## Common Development Tasks
+
+### Creating a New Component
+
+```bash
+# Generate component with our CLI tool
+npm run generate:component MyComponent
+
+# Or manually create the files:
+mkdir src/components/my-component
+touch src/components/my-component/index.tsx
+touch src/components/my-component/my-component.stories.tsx
+touch src/components/my-component/my-component.test.tsx
+```
+
+### Adding a New API Endpoint
+
+<Steps>
+  <Step title="Define Route">
+    ```typescript
+    // src/routes/bookings.ts
+    import { Router } from 'express';
+    import { createBookingController } from '../controllers/bookings';
+    
+    const router = Router();
+    router.post('/', createBookingController);
+    
+    export default router;
+    ```
+  </Step>
+  
+  <Step title="Create Controller">
+    ```typescript
+    // src/controllers/bookings.ts
+    import { Request, Response } from 'express';
+    import { bookingService } from '../services/booking';
+    
+    export const createBookingController = async (req: Request, res: Response) => {
+      try {
+        const booking = await bookingService.create(req.body);
+        res.status(201).json({ success: true, data: booking });
+      } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+      }
+    };
+    ```
+  </Step>
+  
+  <Step title="Add Tests">
+    ```typescript
+    // src/controllers/__tests__/bookings.test.ts
+    import { createBookingController } from '../bookings';
+    
+    describe('Booking Controller', () => {
+      it('should create a new booking', async () => {
+        // Test implementation
+      });
+    });
+    ```
+  </Step>
+</Steps>
+
+### Running Tests
+
+<Tabs>
+  <Tab title="Frontend Tests">
+    ```bash
+    # Run all tests
+    npm test
+    
+    # Run tests in watch mode
+    npm run test:watch
+    
+    # Run E2E tests
+    npm run test:e2e
+    
+    # Generate coverage report
+    npm run test:coverage
+    ```
+  </Tab>
+  
+  <Tab title="Backend Tests">
+    ```bash
+    # Unit tests
+    npm run test:unit
+    
+    # Integration tests
+    npm run test:integration
+    
+    # API tests
+    npm run test:api
+    
+    # All tests
+    npm test
+    ```
+  </Tab>
+</Tabs>
+
+## Debugging
+
+### Frontend Debugging
+
+1. **React DevTools**: Install the browser extension
+2. **Console Debugging**: Use `console.log` and `debugger` statements
+3. **Network Tab**: Monitor API calls and responses
+4. **Lighthouse**: Performance and accessibility audits
+
+### Backend Debugging
+
+1. **Debug Mode**: Start with `npm run dev:debug`
+2. **Logging**: Use structured logging with correlation IDs
+3. **Database Queries**: Enable Prisma query logging
+4. **API Testing**: Use Postman or Thunder Client
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Port Already in Use">
+    ```bash
+    # Find process using port 3000
+    lsof -ti:3000
+    
+    # Kill the process
+    kill -9 $(lsof -ti:3000)
+    
+    # Or use a different port
+    PORT=3001 npm run dev
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Connection Issues">
+    ```bash
+    # Check if PostgreSQL is running
+    docker ps | grep postgres
+    
+    # Restart the container
+    docker restart lotus-postgres
+    
+    # Check connection
+    npx prisma db push
+    ```
+  </Accordion>
+  
+  <Accordion title="Module Not Found Errors">
+    ```bash
+    # Clear node_modules and reinstall
+    rm -rf node_modules package-lock.json
+    npm install
+    
+    # Clear Next.js cache
+    rm -rf .next
+    
+    # Restart TypeScript server in VSCode
+    # Cmd/Ctrl + Shift + P > "TypeScript: Restart TS Server"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Now that you have your development environment set up:
+
+1. **Explore the Components**: Check out the [Hero Section](/components/hero-section) documentation
+2. **Learn the APIs**: Start with the [Booking API](/api-reference/bookings/create-booking)
+3. **Review Best Practices**: Read our [development guidelines](/development/setup)
+4. **Join the Community**: Connect with other developers on our Discord
+
+<Card
+  title="Need Help?"
+  icon="question-circle"
+  href="mailto:dev-support@lotus-retreats.com"
+>
+  Reach out to our development team for assistance
+</Card>

@@ -1,0 +1,428 @@
+---
+title: 'Hero Section Component'
+description: 'Immersive hero experience showcasing the LÖTUS brand with video or static imagery'
+---
+
+# Hero Section Component
+
+The Hero Section is the primary visual component that welcomes visitors to the LÖTUS experience. It features either a dynamic 7-second promotional video or a stunning static image, designed to capture the essence of our exclusive wellness retreats.
+
+## Overview
+
+The hero section adapts based on available content and user preferences, providing either:
+- **Video Hero**: 7-second promotional video showcasing helicopter arrivals, underwater footage, and wellness activities
+- **Static Hero**: High-quality image with animated text overlays and logo presentation
+
+<CardGroup cols={2}>
+  <Card title="Video Implementation" icon="video">
+    Dynamic video background with overlay content
+  </Card>
+  <Card title="Static Implementation" icon="image">
+    Optimized image with animated typography
+  </Card>
+</CardGroup>
+
+## Component API
+
+### Props
+
+```typescript
+interface HeroSectionProps {
+  /** Enable video background (requires video assets) */
+  enableVideo?: boolean;
+  
+  /** Video source URL or path */
+  videoSrc?: string;
+  
+  /** Fallback image for static hero */
+  imageSrc: string;
+  
+  /** Hero headline text */
+  headline?: string;
+  
+  /** Logo configuration */
+  logo?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  
+  /** Call-to-action button */
+  cta?: {
+    text: string;
+    href: string;
+    variant?: 'primary' | 'secondary';
+  };
+  
+  /** Accessibility and SEO */
+  alt?: string;
+  priority?: boolean;
+}
+```
+
+### Default Props
+
+```typescript
+const defaultProps: Partial<HeroSectionProps> = {
+  enableVideo: false,
+  headline: "YOUR EXCLUSIVE WELLNESS AND PILATES RETREAT",
+  logo: {
+    src: "/images/lotus-logo.svg",
+    alt: "LÖTUS Pilates Retreat",
+    width: 200,
+    height: 80
+  },
+  cta: {
+    text: "DISCOVER",
+    href: "#lotus-experience",
+    variant: "primary"
+  },
+  priority: true
+};
+```
+
+## Implementation
+
+### Basic Usage
+
+```jsx
+import { HeroSection } from '@/components/landing/hero-section';
+
+export default function LandingPage() {
+  return (
+    <HeroSection
+      imageSrc="/images/hero-pilates-retreat.jpg"
+      alt="Women practicing pilates in a beautiful natural setting"
+    />
+  );
+}
+```
+
+### Video Hero Implementation
+
+```jsx
+<HeroSection
+  enableVideo={true}
+  videoSrc="/videos/lotus-promo-7s.mp4"
+  imageSrc="/images/hero-fallback.jpg"
+  headline="YOUR EXCLUSIVE WELLNESS AND PILATES RETREAT"
+  cta={{
+    text: "BOOK YOUR RETREAT",
+    href: "/booking",
+    variant: "primary"
+  }}
+/>
+```
+
+### Static Hero with Custom Content
+
+```jsx
+<HeroSection
+  imageSrc="/images/helicopter-arrival.jpg"
+  headline="TRANSFORM YOUR WELLNESS JOURNEY"
+  logo={{
+    src: "/images/lotus-logo-white.svg",
+    alt: "LÖTUS",
+    width: 250,
+    height: 100
+  }}
+  cta={{
+    text: "EXPLORE RETREATS",
+    href: "/retreats",
+    variant: "secondary"
+  }}
+/>
+```
+
+## Video Specifications
+
+### Technical Requirements
+
+- **Duration**: 7 seconds exactly
+- **Format**: MP4 (H.264 codec recommended)
+- **Resolution**: 1920x1080 minimum, 4K preferred
+- **Aspect Ratio**: 16:9
+- **File Size**: < 5MB for optimal loading
+- **Audio**: No audio track (muted autoplay)
+
+### Content Guidelines
+
+The 7-second video should include:
+
+1. **Opening (0-2s)**: Helicopter arrival or dramatic entrance
+2. **Middle (2-4s)**: Underwater barracuda footage or nature shots
+3. **Wellness (4-6s)**: Women practicing yoga/pilates in harmony
+4. **Finale (6-7s)**: Freeze on final pose with logo overlay
+
+### Video Assets Structure
+
+```
+public/
+└── videos/
+    ├── lotus-promo-7s.mp4          # Main promotional video
+    ├── lotus-promo-7s.webm         # WebM fallback
+    └── poster/
+        ├── hero-poster.jpg         # Video poster image
+        └── hero-poster.webp        # Optimized poster
+```
+
+## Styling and Theming
+
+### CSS Variables
+
+```css
+:root {
+  --hero-height: 100vh;
+  --hero-min-height: 600px;
+  --hero-overlay-opacity: 0.3;
+  --hero-text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --hero-logo-filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+```
+
+### Responsive Breakpoints
+
+```scss
+.hero-section {
+  // Mobile
+  @media (max-width: 768px) {
+    --hero-height: 80vh;
+    --hero-min-height: 500px;
+  }
+  
+  // Tablet
+  @media (min-width: 769px) and (max-width: 1024px) {
+    --hero-height: 90vh;
+    --hero-min-height: 600px;
+  }
+  
+  // Desktop
+  @media (min-width: 1025px) {
+    --hero-height: 100vh;
+    --hero-min-height: 700px;
+  }
+}
+```
+
+### Animation Classes
+
+```css
+.hero-content {
+  animation: fadeInUp 1.2s ease-out;
+}
+
+.hero-logo {
+  animation: fadeIn 1.5s ease-out 0.3s both;
+}
+
+.hero-headline {
+  animation: slideInUp 1s ease-out 0.6s both;
+}
+
+.hero-cta {
+  animation: bounceIn 0.8s ease-out 1.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+```
+
+## Accessibility Features
+
+### WCAG 2.1 AA Compliance
+
+- **Keyboard Navigation**: CTA button fully keyboard accessible
+- **Screen Reader Support**: Proper ARIA labels and alt text
+- **Reduced Motion**: Respects `prefers-reduced-motion` setting
+- **Color Contrast**: Text overlay ensures 4.5:1 contrast ratio
+- **Focus Indicators**: Clear focus states for interactive elements
+
+### Accessibility Implementation
+
+```jsx
+<section
+  className="hero-section"
+  role="banner"
+  aria-label="LÖTUS Pilates Retreat Hero Section"
+>
+  {enableVideo && (
+    <video
+      autoPlay
+      muted
+      loop
+      playsInline
+      aria-hidden="true"
+      poster={posterImage}
+    >
+      <source src={videoSrc} type="video/mp4" />
+      <source src={videoSrcWebm} type="video/webm" />
+    </video>
+  )}
+  
+  <div className="hero-overlay" aria-hidden="true" />
+  
+  <div className="hero-content">
+    <img
+      src={logo.src}
+      alt={logo.alt}
+      width={logo.width}
+      height={logo.height}
+      priority={priority}
+    />
+    
+    <h1 className="hero-headline">
+      {headline}
+    </h1>
+    
+    <button
+      className="hero-cta"
+      onClick={() => scrollToSection(cta.href)}
+      aria-label={`${cta.text} - Navigate to ${cta.href}`}
+    >
+      {cta.text}
+    </button>
+  </div>
+</section>
+```
+
+## Performance Optimization
+
+### Image Optimization
+
+```jsx
+import Image from 'next/image';
+
+// Static hero image
+<Image
+  src={imageSrc}
+  alt={alt}
+  fill
+  priority={priority}
+  quality={90}
+  sizes="100vw"
+  style={{
+    objectFit: 'cover',
+    objectPosition: 'center',
+  }}
+/>
+```
+
+### Video Optimization
+
+- **Lazy Loading**: Video loads only when in viewport
+- **Preload Strategy**: Poster image loads immediately
+- **Compression**: Optimized file sizes for fast loading
+- **Format Fallbacks**: Multiple video formats for browser compatibility
+
+### Loading States
+
+```jsx
+const [videoLoaded, setVideoLoaded] = useState(false);
+const [imageLoaded, setImageLoaded] = useState(false);
+
+// Show loading state until assets are ready
+if (!videoLoaded && !imageLoaded) {
+  return <HeroSkeleton />;
+}
+```
+
+## Testing
+
+### Unit Tests
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { HeroSection } from './hero-section';
+
+describe('HeroSection', () => {
+  it('renders headline correctly', () => {
+    render(<HeroSection imageSrc="/test.jpg" />);
+    expect(screen.getByRole('heading', { level: 1 }))
+      .toHaveTextContent('YOUR EXCLUSIVE WELLNESS AND PILATES RETREAT');
+  });
+  
+  it('displays video when enabled', () => {
+    render(
+      <HeroSection
+        enableVideo={true}
+        videoSrc="/test.mp4"
+        imageSrc="/test.jpg"
+      />
+    );
+    expect(screen.getByRole('banner')).toContainElement(
+      screen.getByTestId('hero-video')
+    );
+  });
+  
+  it('fallback to image when video fails', async () => {
+    render(
+      <HeroSection
+        enableVideo={true}
+        videoSrc="/invalid.mp4"
+        imageSrc="/test.jpg"
+      />
+    );
+    
+    // Simulate video error
+    const video = screen.getByTestId('hero-video');
+    fireEvent.error(video);
+    
+    await waitFor(() => {
+      expect(screen.getByAltText(/pilates retreat/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+### E2E Tests
+
+```typescript
+// cypress/e2e/hero-section.cy.ts
+describe('Hero Section', () => {
+  it('plays video on desktop', () => {
+    cy.viewport(1200, 800);
+    cy.visit('/');
+    
+    cy.get('[data-testid="hero-video"]')
+      .should('be.visible')
+      .and('have.prop', 'paused', false);
+  });
+  
+  it('displays CTA and navigates correctly', () => {
+    cy.visit('/');
+    cy.get('[data-testid="hero-cta"]').click();
+    cy.url().should('include', '#lotus-experience');
+  });
+});
+```
+
+## Best Practices
+
+### Content Guidelines
+
+1. **Visual Consistency**: Maintain brand colors and typography
+2. **Message Clarity**: Keep headline concise and impactful
+3. **Loading Priority**: Hero content loads before other page elements
+4. **Mobile Experience**: Ensure readability on all screen sizes
+
+### Technical Guidelines
+
+1. **Performance**: Optimize assets for fast loading
+2. **Accessibility**: Test with screen readers and keyboard navigation
+3. **Fallbacks**: Always provide image fallback for video
+4. **Testing**: Test across different browsers and devices
+
+---
+
+<Note>
+The Hero Section sets the first impression for the LÖTUS experience. Ensure all content aligns with the luxury wellness brand positioning.
+</Note>

@@ -1,0 +1,684 @@
+---
+title: 'List Retreats'
+openapi: 'GET /api/v1/retreats'
+description: 'Retrieve a paginated list of available retreats with filtering and search capabilities'
+---
+
+# List Retreats
+
+Retrieves a paginated list of retreats with comprehensive filtering, search, and sorting options. This endpoint provides all the information needed to display retreat listings and availability.
+
+## Endpoint
+
+```http
+GET /api/v1/retreats
+```
+
+## Authentication
+
+This endpoint can be accessed without authentication for basic retreat information. Authentication is required for detailed availability and pricing information.
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+## Query Parameters
+
+### Pagination
+
+<ParamField query="page" type="integer" default="1">
+  Page number to retrieve (starting from 1)
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of retreats per page (maximum 100)
+</ParamField>
+
+### Sorting
+
+<ParamField query="sort" type="string" default="start_date">
+  Field to sort by. Options: `start_date`, `price`, `title`, `created_at`, `popularity`
+</ParamField>
+
+<ParamField query="order" type="string" default="asc">
+  Sort order: `asc` (ascending) or `desc` (descending)
+</ParamField>
+
+### Filtering
+
+<ParamField query="status" type="string">
+  Filter by retreat status: `available`, `limited`, `sold_out`, `upcoming`, `completed`
+</ParamField>
+
+<ParamField query="location" type="string">
+  Filter by country or region (e.g., "brazil", "costa-rica")
+</ParamField>
+
+<ParamField query="city" type="string">
+  Filter by specific city (e.g., "itacare", "tulum")
+</ParamField>
+
+<ParamField query="start_date_from" type="string">
+  Filter retreats starting from this date (YYYY-MM-DD format)
+</ParamField>
+
+<ParamField query="start_date_to" type="string">
+  Filter retreats starting before this date (YYYY-MM-DD format)
+</ParamField>
+
+<ParamField query="min_price" type="number">
+  Minimum price filter (in USD)
+</ParamField>
+
+<ParamField query="max_price" type="number">
+  Maximum price filter (in USD)
+</ParamField>
+
+<ParamField query="duration_days" type="integer">
+  Filter by retreat duration in days
+</ParamField>
+
+<ParamField query="difficulty_level" type="string">
+  Filter by difficulty: `beginner`, `intermediate`, `advanced`, `all_levels`
+</ParamField>
+
+<ParamField query="amenities" type="string">
+  Comma-separated list of required amenities (e.g., "spa,beach_access,airport_transfer")
+</ParamField>
+
+### Search
+
+<ParamField query="search" type="string">
+  Search query for retreat titles, descriptions, and locations
+</ParamField>
+
+<ParamField query="featured" type="boolean">
+  Filter to show only featured retreats
+</ParamField>
+
+## Request Examples
+
+<CodeGroup>
+
+```bash Basic Request
+curl "https://api.lotus-retreats.com/v1/retreats" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```bash Filtered Request
+curl "https://api.lotus-retreats.com/v1/retreats?location=brazil&status=available&start_date_from=2024-03-01&limit=10" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```bash Search Request
+curl "https://api.lotus-retreats.com/v1/retreats?search=coastal+harmony&sort=price&order=asc" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```javascript JavaScript SDK
+import { LotusAPI } from '@lotus-retreats/sdk';
+
+const lotus = new LotusAPI({ apiKey: 'your-api-key' });
+
+// Basic listing
+const retreats = await lotus.retreats.list();
+
+// Filtered listing
+const availableRetreats = await lotus.retreats.list({
+  status: 'available',
+  location: 'brazil',
+  start_date_from: '2024-03-01',
+  limit: 10
+});
+
+// Search with filters
+const searchResults = await lotus.retreats.list({
+  search: 'coastal harmony',
+  sort: 'price',
+  order: 'asc',
+  amenities: ['spa', 'beach_access']
+});
+```
+
+</CodeGroup>
+
+## Response
+
+### Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ret_itacare_brazil_2024",
+      "title": "Coastal Harmony Retreat",
+      "slug": "coastal-harmony-itacare-2024",
+      "description": "Transform your wellness journey in this exclusive beachfront retreat combining daily pilates sessions with natural healing experiences.",
+      "short_description": "7-day beachfront pilates and wellness retreat in Brazil",
+      "featured": true,
+      "status": "available",
+      "difficulty_level": "all_levels",
+      "location": {
+        "name": "Villa Serenidade",
+        "city": "Itacaré",
+        "state": "Bahia",
+        "country": "Brazil",
+        "country_code": "BR",
+        "coordinates": {
+          "latitude": -14.2755,
+          "longitude": -38.9967
+        },
+        "timezone": "America/Bahia",
+        "description": "Pristine beachfront location surrounded by Atlantic rainforest"
+      },
+      "dates": {
+        "start_date": "2024-03-15",
+        "end_date": "2024-03-22",
+        "duration_days": 7,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00"
+      },
+      "capacity": {
+        "total_spots": 12,
+        "available_spots": 3,
+        "reserved_spots": 9,
+        "waitlist_count": 2
+      },
+      "pricing": {
+        "base_price": 2800.00,
+        "currency": "USD",
+        "includes_tax": false,
+        "tax_rate": 0.08,
+        "total_price": 3024.00,
+        "deposit_required": 500.00,
+        "deposit_percentage": 0.18,
+        "cancellation_policy": "flexible",
+        "payment_options": ["full_payment", "deposit_only", "installments"]
+      },
+      "inclusions": [
+        "Accommodation",
+        "All Meals",
+        "Daily Pilates Sessions",
+        "Spa Treatments",
+        "Airport Transfers",
+        "Yoga Classes",
+        "Meditation Sessions"
+      ],
+      "amenities": [
+        "spa",
+        "beach_access",
+        "airport_transfer",
+        "wifi",
+        "pool",
+        "restaurant",
+        "yoga_studio",
+        "pilates_studio",
+        "massage_therapy",
+        "organic_meals"
+      ],
+      "accommodation": {
+        "room_types": [
+          {
+            "type": "ocean_view",
+            "name": "Ocean View Suite",
+            "description": "Spacious suite with panoramic ocean views",
+            "capacity": 1,
+            "available": 2,
+            "price_supplement": 0.00
+          },
+          {
+            "type": "garden_view",
+            "name": "Garden View Room",
+            "description": "Comfortable room overlooking tropical gardens",
+            "capacity": 1,
+            "available": 1,
+            "price_supplement": -200.00
+          }
+        ],
+        "total_rooms": 8,
+        "available_rooms": 3
+      },
+      "schedule": {
+        "daily_activities": [
+          {
+            "time": "07:00",
+            "activity": "Morning Meditation",
+            "duration": 30,
+            "optional": true
+          },
+          {
+            "time": "08:00",
+            "activity": "Breakfast",
+            "duration": 60,
+            "optional": false
+          },
+          {
+            "time": "09:30",
+            "activity": "Pilates Session",
+            "duration": 90,
+            "optional": false
+          },
+          {
+            "time": "11:30",
+            "activity": "Beach Time / Free Activity",
+            "duration": 120,
+            "optional": true
+          }
+        ],
+        "special_events": [
+          {
+            "date": "2024-03-18",
+            "event": "Full Moon Beach Ceremony",
+            "time": "20:00"
+          }
+        ]
+      },
+      "images": [
+        {
+          "id": "img_001",
+          "url": "https://cdn.lotus-retreats.com/retreats/itacare/hero.jpg",
+          "alt": "Villa Serenidade ocean view",
+          "type": "hero",
+          "featured": true
+        },
+        {
+          "id": "img_002",
+          "url": "https://cdn.lotus-retreats.com/retreats/itacare/villa-exterior.jpg",
+          "alt": "Villa exterior architecture",
+          "type": "exterior",
+          "featured": false
+        }
+      ],
+      "instructor": {
+        "id": "inst_maria_santos",
+        "name": "Maria Santos",
+        "bio": "Certified Pilates instructor with 15 years of experience",
+        "certifications": ["PMA Certified", "Comprehensive Pilates"],
+        "photo": "https://cdn.lotus-retreats.com/instructors/maria-santos.jpg"
+      },
+      "reviews": {
+        "average_rating": 4.8,
+        "total_reviews": 24,
+        "rating_distribution": {
+          "5": 18,
+          "4": 5,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      },
+      "booking_info": {
+        "booking_deadline": "2024-03-01T23:59:59Z",
+        "min_advance_booking_days": 14,
+        "max_advance_booking_days": 365,
+        "instant_booking": true,
+        "requires_approval": false
+      },
+      "policies": {
+        "age_requirement": {
+          "minimum_age": 18,
+          "maximum_age": null
+        },
+        "fitness_level": "Suitable for all fitness levels",
+        "what_to_bring": [
+          "Comfortable workout clothes",
+          "Swimwear",
+          "Sunscreen",
+          "Personal yoga mat (optional)"
+        ],
+        "not_included": [
+          "Alcoholic beverages",
+          "Personal expenses",
+          "Travel insurance"
+        ]
+      },
+      "created_at": "2023-12-01T10:00:00Z",
+      "updated_at": "2024-01-10T15:30:00Z"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 45,
+      "total_pages": 3,
+      "has_next": true,
+      "has_previous": false
+    },
+    "filters_applied": {
+      "status": "available",
+      "location": "brazil"
+    },
+    "search_query": null,
+    "request_id": "req_list_retreats_456",
+    "timestamp": "2024-01-15T14:20:00Z"
+  },
+  "links": {
+    "self": "/api/v1/retreats?page=1&limit=20&status=available&location=brazil",
+    "next": "/api/v1/retreats?page=2&limit=20&status=available&location=brazil",
+    "previous": null,
+    "first": "/api/v1/retreats?page=1&limit=20&status=available&location=brazil",
+    "last": "/api/v1/retreats?page=3&limit=20&status=available&location=brazil"
+  }
+}
+```
+
+### Response Fields
+
+<ResponseField name="data" type="array">
+  Array of retreat objects matching the query criteria
+  
+  <Expandable title="Retreat Object Properties">
+    <ResponseField name="id" type="string">
+      Unique retreat identifier
+    </ResponseField>
+    
+    <ResponseField name="title" type="string">
+      Full retreat title
+    </ResponseField>
+    
+    <ResponseField name="slug" type="string">
+      URL-friendly retreat identifier
+    </ResponseField>
+    
+    <ResponseField name="description" type="string">
+      Detailed retreat description
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Current availability status: "available", "limited", "sold_out", "upcoming", "completed"
+    </ResponseField>
+    
+    <ResponseField name="location" type="object">
+      Complete location information including coordinates and timezone
+    </ResponseField>
+    
+    <ResponseField name="dates" type="object">
+      Retreat dates, duration, and check-in/out times
+    </ResponseField>
+    
+    <ResponseField name="capacity" type="object">
+      Availability information including total spots, available spots, and waitlist
+    </ResponseField>
+    
+    <ResponseField name="pricing" type="object">
+      Comprehensive pricing information including base price, taxes, and payment options
+    </ResponseField>
+    
+    <ResponseField name="accommodation" type="object">
+      Room types, availability, and pricing supplements
+    </ResponseField>
+    
+    <ResponseField name="schedule" type="object">
+      Daily activity schedule and special events
+    </ResponseField>
+    
+    <ResponseField name="images" type="array">
+      Retreat images with URLs, alt text, and categorization
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta.pagination" type="object">
+  Pagination information for navigating through results
+</ResponseField>
+
+<ResponseField name="meta.filters_applied" type="object">
+  Summary of filters that were applied to the query
+</ResponseField>
+
+<ResponseField name="links" type="object">
+  Navigation links for pagination (self, next, previous, first, last)
+</ResponseField>
+
+## Filtering Examples
+
+### Date Range Filtering
+
+```bash
+# Retreats in March 2024
+curl "https://api.lotus-retreats.com/v1/retreats?start_date_from=2024-03-01&start_date_to=2024-03-31"
+
+# Retreats starting within the next 6 months
+curl "https://api.lotus-retreats.com/v1/retreats?start_date_from=$(date +%Y-%m-%d)&start_date_to=$(date -d '+6 months' +%Y-%m-%d)"
+```
+
+### Price Range Filtering
+
+```bash
+# Budget-friendly retreats under $2000
+curl "https://api.lotus-retreats.com/v1/retreats?max_price=2000&sort=price&order=asc"
+
+# Luxury retreats over $5000
+curl "https://api.lotus-retreats.com/v1/retreats?min_price=5000&sort=price&order=desc"
+```
+
+### Location and Amenity Filtering
+
+```bash
+# Beach retreats in Brazil with spa facilities
+curl "https://api.lotus-retreats.com/v1/retreats?location=brazil&amenities=beach_access,spa"
+
+# All-levels retreats with airport transfers
+curl "https://api.lotus-retreats.com/v1/retreats?difficulty_level=all_levels&amenities=airport_transfer"
+```
+
+## Search Functionality
+
+The search parameter supports:
+
+- **Title matching**: Partial and full title matches
+- **Description search**: Keyword matching in descriptions
+- **Location search**: City, state, and country names
+- **Instructor search**: Instructor names and specialties
+- **Amenity search**: Facility and service names
+
+### Search Examples
+
+```bash
+# Search for coastal retreats
+curl "https://api.lotus-retreats.com/v1/retreats?search=coastal"
+
+# Search for specific instructor
+curl "https://api.lotus-retreats.com/v1/retreats?search=maria+santos"
+
+# Combined search and filters
+curl "https://api.lotus-retreats.com/v1/retreats?search=pilates&location=brazil&status=available"
+```
+
+## Sorting Options
+
+Available sorting fields:
+
+| Sort Field | Description |
+|------------|-------------|
+| `start_date` | Retreat start date (default) |
+| `price` | Base price |
+| `title` | Alphabetical by title |
+| `created_at` | When retreat was created |
+| `popularity` | Based on bookings and reviews |
+| `rating` | Average review rating |
+| `availability` | Available spots (descending) |
+
+## Error Responses
+
+### Invalid Parameters (400)
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_PARAMETERS",
+    "message": "One or more query parameters are invalid",
+    "details": {
+      "start_date_from": ["Date must be in YYYY-MM-DD format"],
+      "limit": ["Limit must be between 1 and 100"],
+      "sort": ["Invalid sort field. Must be one of: start_date, price, title, created_at, popularity"]
+    }
+  }
+}
+```
+
+### No Results Found (200)
+
+```json
+{
+  "success": true,
+  "data": [],
+  "meta": {
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 0,
+      "total_pages": 0,
+      "has_next": false,
+      "has_previous": false
+    },
+    "message": "No retreats found matching the specified criteria"
+  }
+}
+```
+
+## SDK Examples
+
+### JavaScript/React Integration
+
+```javascript
+import { LotusAPI } from '@lotus-retreats/sdk';
+import { useState, useEffect } from 'react';
+
+const RetreatListing = () => {
+  const [retreats, setRetreats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    status: 'available',
+    location: '',
+    sort: 'start_date',
+    order: 'asc'
+  });
+
+  const lotus = new LotusAPI({ apiKey: process.env.NEXT_PUBLIC_LOTUS_API_KEY });
+
+  useEffect(() => {
+    const fetchRetreats = async () => {
+      setLoading(true);
+      try {
+        const response = await lotus.retreats.list(filters);
+        setRetreats(response.data);
+      } catch (error) {
+        console.error('Failed to fetch retreats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRetreats();
+  }, [filters]);
+
+  const handleFilterChange = (newFilters) => {
+    setFilters({ ...filters, ...newFilters });
+  };
+
+  if (loading) return <div>Loading retreats...</div>;
+
+  return (
+    <div>
+      {retreats.map(retreat => (
+        <div key={retreat.id} className="retreat-card">
+          <h3>{retreat.title}</h3>
+          <p>{retreat.location.city}, {retreat.location.country}</p>
+          <p>From ${retreat.pricing.base_price}</p>
+          <p>{retreat.capacity.available_spots} spots available</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Python Integration
+
+```python
+import lotus_retreats
+from datetime import datetime, timedelta
+
+client = lotus_retreats.Client(api_key='your_api_key')
+
+# Get available retreats in the next 3 months
+next_3_months = datetime.now() + timedelta(days=90)
+
+retreats = client.retreats.list(
+    status='available',
+    start_date_from=datetime.now().strftime('%Y-%m-%d'),
+    start_date_to=next_3_months.strftime('%Y-%m-%d'),
+    sort='price',
+    order='asc',
+    limit=50
+)
+
+for retreat in retreats.data:
+    print(f"{retreat.title} - ${retreat.pricing.base_price}")
+    print(f"  Location: {retreat.location.city}, {retreat.location.country}")
+    print(f"  Dates: {retreat.dates.start_date} to {retreat.dates.end_date}")
+    print(f"  Available: {retreat.capacity.available_spots} spots")
+    print()
+```
+
+## Performance Considerations
+
+### Caching
+
+- Retreat listings are cached for 5 minutes
+- Individual retreat details are cached for 1 minute
+- Availability information is cached for 30 seconds
+
+### Optimization Tips
+
+1. **Use pagination**: Don't request all retreats at once
+2. **Apply filters**: Reduce dataset size with specific filters
+3. **Limit fields**: Use field selection when available
+4. **Cache results**: Cache retreat data on the client side appropriately
+
+### Cache Headers
+
+```http
+Cache-Control: public, max-age=300
+ETag: "retreat-list-hash-12345"
+Last-Modified: Mon, 15 Jan 2024 14:20:00 GMT
+```
+
+## Real-time Updates
+
+For real-time availability updates, consider using:
+
+1. **Polling**: Refresh data every 30-60 seconds
+2. **WebSockets**: Subscribe to retreat availability updates
+3. **Webhooks**: Receive notifications for availability changes
+
+### WebSocket Subscription
+
+```javascript
+const ws = new WebSocket('wss://api.lotus-retreats.com/v1/realtime');
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    channel: 'retreat_availability',
+    retreat_ids: ['ret_itacare_brazil_2024', 'ret_tulum_mexico_2024']
+  }));
+};
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  if (update.type === 'availability_changed') {
+    updateRetreatAvailability(update.retreat_id, update.available_spots);
+  }
+};
+```
+
+---
+
+<Note>
+Retreat availability changes frequently. For booking flows, always verify availability with a real-time check before allowing users to proceed with payment.
+</Note>

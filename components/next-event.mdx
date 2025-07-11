@@ -1,0 +1,643 @@
+---
+title: 'Next Event Component'
+description: 'Dynamic showcase of upcoming retreats with villa photo carousels and booking integration'
+---
+
+# Next Event Component
+
+The Next Event component presents upcoming retreat opportunities with immersive villa photo carousels, detailed information, and integrated booking functionality. It serves as the primary conversion point on the landing page.
+
+## Overview
+
+This component dynamically displays:
+- **Event Information**: Dates, location, and retreat details
+- **Villa Carousels**: High-quality photo galleries of retreat locations
+- **Availability Status**: Real-time booking availability
+- **Booking Integration**: Direct connection to reservation system
+
+<CardGroup cols={3}>
+  <Card title="Event Details" icon="calendar">
+    Comprehensive retreat information and scheduling
+  </Card>
+  <Card title="Villa Galleries" icon="images">
+    Interactive photo carousels showcasing locations
+  </Card>
+  <Card title="Booking Flow" icon="credit-card">
+    Seamless integration with reservation system
+  </Card>
+</CardGroup>
+
+## Component API
+
+### Props
+
+```typescript
+interface NextEventProps {
+  /** Current featured event */
+  featuredEvent: RetreatEvent;
+  
+  /** Alternative upcoming events */
+  upcomingEvents?: RetreatEvent[];
+  
+  /** Booking configuration */
+  booking?: {
+    enabled: boolean;
+    ctaText: string;
+    redirectUrl: string;
+  };
+  
+  /** Carousel settings */
+  carouselConfig?: CarouselConfig;
+  
+  /** Event display options */
+  displayOptions?: {
+    showAvailability: boolean;
+    showPricing: boolean;
+    showAmenities: boolean;
+  };
+}
+
+interface RetreatEvent {
+  id: string;
+  title: string;
+  location: Location;
+  dates: DateRange;
+  description: string;
+  villaImages: VillaImage[];
+  availability: AvailabilityStatus;
+  pricing: PricingInfo;
+  amenities: string[];
+  capacity: number;
+  currentBookings: number;
+  status: 'available' | 'limited' | 'sold-out' | 'upcoming';
+}
+
+interface Location {
+  name: string;
+  city: string;
+  country: string;
+  coordinates?: [number, number];
+  description: string;
+}
+
+interface VillaImage {
+  id: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  category: 'exterior' | 'interior' | 'amenities' | 'surroundings';
+  featured: boolean;
+}
+```
+
+### Example Event Data
+
+```typescript
+const sampleEvent: RetreatEvent = {
+  id: "itacare-brazil-2024",
+  title: "Coastal Harmony Retreat",
+  location: {
+    name: "Villa Serenidade",
+    city: "Itacaré",
+    country: "Brazil",
+    coordinates: [-14.2755, -38.9967],
+    description: "Pristine beachfront location surrounded by Atlantic rainforest"
+  },
+  dates: {
+    start: "2024-03-15",
+    end: "2024-03-22",
+    duration: 7
+  },
+  description: "Transform your wellness journey in this exclusive beachfront retreat combining daily pilates sessions with natural healing experiences.",
+  villaImages: [
+    {
+      id: "main-exterior",
+      src: "/images/villas/itacare/exterior-oceanview.jpg",
+      alt: "Villa exterior with ocean view",
+      category: "exterior",
+      featured: true,
+      caption: "Breathtaking ocean views from every angle"
+    },
+    // Additional images...
+  ],
+  availability: {
+    status: "limited",
+    spotsRemaining: 3,
+    totalSpots: 12
+  },
+  pricing: {
+    basePrice: 2800,
+    currency: "USD",
+    includes: ["Accommodation", "All Meals", "Pilates Sessions", "Spa Treatments"]
+  },
+  status: "available"
+};
+```
+
+## Implementation
+
+### Basic Usage
+
+```jsx
+import { NextEvent } from '@/components/landing/next-event';
+
+export default function LandingPage() {
+  const [featuredEvent, setFeaturedEvent] = useState(null);
+  
+  useEffect(() => {
+    fetchFeaturedEvent().then(setFeaturedEvent);
+  }, []);
+  
+  if (!featuredEvent) return <NextEventSkeleton />;
+  
+  return (
+    <NextEvent
+      featuredEvent={featuredEvent}
+      booking={{
+        enabled: true,
+        ctaText: "BOOK YOUR RETREAT",
+        redirectUrl: "/booking"
+      }}
+    />
+  );
+}
+```
+
+### Advanced Configuration
+
+```jsx
+<NextEvent
+  featuredEvent={featuredEvent}
+  upcomingEvents={upcomingEvents}
+  carouselConfig={{
+    autoPlay: true,
+    interval: 4000,
+    showThumbnails: true,
+    enableZoom: true
+  }}
+  displayOptions={{
+    showAvailability: true,
+    showPricing: true,
+    showAmenities: true
+  }}
+  booking={{
+    enabled: featuredEvent.status !== 'sold-out',
+    ctaText: getBookingCTAText(featuredEvent.status),
+    redirectUrl: `/booking/${featuredEvent.id}`
+  }}
+/>
+```
+
+## Villa Carousel Implementation
+
+### Carousel Component Structure
+
+```jsx
+const VillaCarousel = ({ images, config }: VillaCarouselProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [zoomedImage, setZoomedImage] = useState(null);
+  
+  return (
+    <div className="villa-carousel">
+      <div className="carousel-main">
+        <Image
+          src={images[currentIndex].src}
+          alt={images[currentIndex].alt}
+          width={800}
+          height={600}
+          style={{ objectFit: 'cover' }}
+          onClick={() => config.enableZoom && setZoomedImage(images[currentIndex])}
+        />
+        
+        <div className="carousel-controls">
+          <button 
+            onClick={() => navigateCarousel('prev')}
+            aria-label="Previous image"
+          >
+            <ChevronLeft />
+          </button>
+          <button 
+            onClick={() => navigateCarousel('next')}
+            aria-label="Next image"
+          >
+            <ChevronRight />
+          </button>
+        </div>
+        
+        {images[currentIndex].caption && (
+          <div className="image-caption">
+            {images[currentIndex].caption}
+          </div>
+        )}
+      </div>
+      
+      {config.showThumbnails && (
+        <div className="carousel-thumbnails">
+          {images.map((image, index) => (
+            <button
+              key={image.id}
+              className={`thumbnail ${index === currentIndex ? 'active' : ''}`}
+              onClick={() => setCurrentIndex(index)}
+            >
+              <Image
+                src={image.src}
+                alt={image.alt}
+                width={100}
+                height={75}
+                style={{ objectFit: 'cover' }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+      
+      {zoomedImage && (
+        <ImageZoomModal
+          image={zoomedImage}
+          onClose={() => setZoomedImage(null)}
+        />
+      )}
+    </div>
+  );
+};
+```
+
+### Image Categories and Filtering
+
+```jsx
+const ImageCategoryFilter = ({ images, activeCategory, onCategoryChange }) => {
+  const categories = useMemo(() => {
+    const cats = [...new Set(images.map(img => img.category))];
+    return [
+      { key: 'all', label: 'All Photos', count: images.length },
+      ...cats.map(cat => ({
+        key: cat,
+        label: formatCategoryLabel(cat),
+        count: images.filter(img => img.category === cat).length
+      }))
+    ];
+  }, [images]);
+  
+  return (
+    <div className="category-filter">
+      {categories.map(category => (
+        <button
+          key={category.key}
+          className={`filter-btn ${activeCategory === category.key ? 'active' : ''}`}
+          onClick={() => onCategoryChange(category.key)}
+        >
+          {category.label} ({category.count})
+        </button>
+      ))}
+    </div>
+  );
+};
+```
+
+## Event Information Display
+
+### Location and Dates
+
+```jsx
+const EventHeader = ({ event }: { event: RetreatEvent }) => (
+  <div className="event-header">
+    <div className="event-location">
+      <MapPin className="location-icon" />
+      <div className="location-info">
+        <h3 className="location-name">{event.location.name}</h3>
+        <p className="location-details">
+          {event.location.city}, {event.location.country}
+        </p>
+        <p className="location-description">
+          {event.location.description}
+        </p>
+      </div>
+    </div>
+    
+    <div className="event-dates">
+      <Calendar className="date-icon" />
+      <div className="date-info">
+        <p className="date-range">
+          {formatDateRange(event.dates.start, event.dates.end)}
+        </p>
+        <p className="duration">
+          {event.dates.duration} days of transformation
+        </p>
+      </div>
+    </div>
+  </div>
+);
+```
+
+### Availability Status
+
+```jsx
+const AvailabilityBadge = ({ availability, status }) => {
+  const getBadgeProps = () => {
+    switch (status) {
+      case 'sold-out':
+        return {
+          variant: 'sold-out',
+          text: 'SOLD OUT',
+          icon: <X />
+        };
+      case 'limited':
+        return {
+          variant: 'limited',
+          text: `${availability.spotsRemaining} SPOTS LEFT`,
+          icon: <AlertCircle />
+        };
+      case 'available':
+        return {
+          variant: 'available',
+          text: 'AVAILABLE',
+          icon: <Check />
+        };
+      default:
+        return {
+          variant: 'upcoming',
+          text: 'COMING SOON',
+          icon: <Clock />
+        };
+    }
+  };
+  
+  const { variant, text, icon } = getBadgeProps();
+  
+  return (
+    <div className={`availability-badge availability-badge--${variant}`}>
+      {icon}
+      <span>{text}</span>
+    </div>
+  );
+};
+```
+
+## Booking Integration
+
+### CTA Button Component
+
+```jsx
+const BookingCTA = ({ event, booking }: BookingCTAProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleBookingClick = async () => {
+    if (event.status === 'sold-out') return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Track booking intent
+      analytics.track('booking_cta_clicked', {
+        event_id: event.id,
+        location: event.location.city,
+        dates: event.dates
+      });
+      
+      // Redirect to booking flow
+      router.push(`${booking.redirectUrl}?event=${event.id}`);
+    } catch (error) {
+      console.error('Booking navigation error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const getButtonText = () => {
+    if (isLoading) return 'Loading...';
+    if (event.status === 'sold-out') return 'SOLD OUT';
+    return booking.ctaText;
+  };
+  
+  return (
+    <button
+      className={`booking-cta booking-cta--${event.status}`}
+      onClick={handleBookingClick}
+      disabled={event.status === 'sold-out' || isLoading}
+      aria-label={`Book ${event.title} retreat`}
+    >
+      {getButtonText()}
+      {!isLoading && event.status !== 'sold-out' && (
+        <ArrowRight className="cta-icon" />
+      )}
+    </button>
+  );
+};
+```
+
+### Real-time Availability Updates
+
+```jsx
+const useRealtimeAvailability = (eventId: string) => {
+  const [availability, setAvailability] = useState(null);
+  
+  useEffect(() => {
+    const ws = new WebSocket(`${WS_URL}/availability/${eventId}`);
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setAvailability(data.availability);
+    };
+    
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+    
+    return () => ws.close();
+  }, [eventId]);
+  
+  return availability;
+};
+```
+
+## Responsive Design
+
+### Mobile-First Approach
+
+```scss
+.next-event {
+  --section-padding: 60px 20px;
+  
+  @media (min-width: 768px) {
+    --section-padding: 80px 40px;
+  }
+  
+  @media (min-width: 1024px) {
+    --section-padding: 120px 60px;
+  }
+}
+
+.villa-carousel {
+  .carousel-main {
+    height: 300px;
+    
+    @media (min-width: 768px) {
+      height: 400px;
+    }
+    
+    @media (min-width: 1024px) {
+      height: 500px;
+    }
+  }
+  
+  .carousel-thumbnails {
+    display: none;
+    
+    @media (min-width: 768px) {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+  }
+}
+```
+
+### Touch Gestures
+
+```jsx
+const useTouchGestures = (onSwipeLeft, onSwipeRight) => {
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) onSwipeLeft();
+    if (isRightSwipe) onSwipeRight();
+  };
+  
+  return { onTouchStart, onTouchMove, onTouchEnd };
+};
+```
+
+## Performance Optimization
+
+### Image Loading Strategy
+
+```jsx
+const OptimizedVillaImages = ({ images }) => {
+  const [loadedImages, setLoadedImages] = useState(new Set());
+  
+  const handleImageLoad = (imageId) => {
+    setLoadedImages(prev => new Set([...prev, imageId]));
+  };
+  
+  return (
+    <>
+      {/* Preload featured image */}
+      <link
+        rel="preload"
+        as="image"
+        href={images.find(img => img.featured)?.src}
+      />
+      
+      {images.map((image, index) => (
+        <Image
+          key={image.id}
+          src={image.src}
+          alt={image.alt}
+          width={800}
+          height={600}
+          priority={index === 0}
+          loading={index > 2 ? 'lazy' : 'eager'}
+          onLoad={() => handleImageLoad(image.id)}
+          className={loadedImages.has(image.id) ? 'loaded' : 'loading'}
+        />
+      ))}
+    </>
+  );
+};
+```
+
+### Data Fetching
+
+```jsx
+const useEventData = (eventId?: string) => {
+  return useQuery({
+    queryKey: ['next-event', eventId],
+    queryFn: () => fetchNextEvent(eventId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 30 * 1000, // 30 seconds for availability
+    select: (data) => ({
+      ...data,
+      villaImages: data.villaImages.sort((a, b) => 
+        Number(b.featured) - Number(a.featured)
+      )
+    })
+  });
+};
+```
+
+## Testing
+
+### Component Testing
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { NextEvent } from './next-event';
+
+const mockEvent = {
+  id: "test-event",
+  title: "Test Retreat",
+  location: { name: "Test Villa", city: "Test City", country: "Test Country" },
+  dates: { start: "2024-03-15", end: "2024-03-22", duration: 7 },
+  villaImages: [
+    { id: "1", src: "/test1.jpg", alt: "Test image 1", featured: true, category: "exterior" }
+  ],
+  status: "available",
+  availability: { status: "available", spotsRemaining: 5, totalSpots: 10 }
+};
+
+describe('NextEvent', () => {
+  it('displays event information correctly', () => {
+    render(<NextEvent featuredEvent={mockEvent} />);
+    
+    expect(screen.getByText('Test Retreat')).toBeInTheDocument();
+    expect(screen.getByText('Test Villa')).toBeInTheDocument();
+    expect(screen.getByText(/Test City, Test Country/)).toBeInTheDocument();
+  });
+  
+  it('shows correct availability status', () => {
+    render(<NextEvent featuredEvent={mockEvent} />);
+    expect(screen.getByText('AVAILABLE')).toBeInTheDocument();
+  });
+  
+  it('navigates carousel correctly', () => {
+    const multiImageEvent = {
+      ...mockEvent,
+      villaImages: [
+        { id: "1", src: "/test1.jpg", alt: "Image 1", featured: true, category: "exterior" },
+        { id: "2", src: "/test2.jpg", alt: "Image 2", featured: false, category: "interior" }
+      ]
+    };
+    
+    render(<NextEvent featuredEvent={multiImageEvent} />);
+    
+    const nextButton = screen.getByLabelText('Next image');
+    fireEvent.click(nextButton);
+    
+    expect(screen.getByAltText('Image 2')).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+<Note>
+The Next Event component is crucial for conversions. Ensure villa images are high-quality and booking flow is seamless across all devices.
+</Note>

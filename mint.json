@@ -1,91 +1,128 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "name": "LÖTUS Pilates Retreat",
   "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
+    "dark": "/logo/lotus-dark.svg",
+    "light": "/logo/lotus-light.svg"
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#4A5D23",
+    "light": "#7B8A3A",
+    "dark": "#2E3A14",
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#4A5D23",
+      "to": "#7B8A3A"
     }
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "name": "Book Retreat",
+      "url": "https://lotus-retreats.com/book"
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "name": "Contact Us",
+    "url": "https://lotus-retreats.com/contact"
   },
   "tabs": [
     {
       "name": "API Reference",
       "url": "api-reference"
+    },
+    {
+      "name": "Components",
+      "url": "components"
     }
   ],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "name": "Live Website",
+      "icon": "globe",
+      "url": "https://lotus-retreats.com"
     },
     {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://mintlify.com/community"
+      "name": "Support",
+      "icon": "headset",
+      "url": "mailto:support@lotus-retreats.com"
     },
     {
-      "name": "Blog",
-      "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/lotus-retreats/website"
     }
   ],
   "navigation": [
     {
-      "group": "Get Started",
+      "group": "Overview",
       "pages": [
         "introduction",
-        "quickstart",
-        "development"
+        "architecture",
+        "getting-started"
       ]
     },
     {
-      "group": "Essentials",
+      "group": "Landing Page Components",
       "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "components/hero-section",
+        "components/lotus-experience",
+        "components/next-event",
+        "components/booking-widget"
+      ]
+    },
+    {
+      "group": "UI Components",
+      "pages": [
+        "components/carousel",
+        "components/cta-button",
+        "components/service-cards",
+        "components/video-player"
       ]
     },
     {
       "group": "API Documentation",
       "pages": [
-        "api-reference/introduction"
+        "api-reference/introduction",
+        "api-reference/authentication"
       ]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Booking APIs",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "api-reference/bookings/create-booking",
+        "api-reference/bookings/get-booking",
+        "api-reference/bookings/update-booking",
+        "api-reference/bookings/cancel-booking"
+      ]
+    },
+    {
+      "group": "Retreat APIs",
+      "pages": [
+        "api-reference/retreats/list-retreats",
+        "api-reference/retreats/get-retreat",
+        "api-reference/retreats/create-retreat"
+      ]
+    },
+    {
+      "group": "User Management",
+      "pages": [
+        "api-reference/users/register",
+        "api-reference/users/login",
+        "api-reference/users/profile"
+      ]
+    },
+    {
+      "group": "Development",
+      "pages": [
+        "development/setup",
+        "development/deployment",
+        "development/testing"
       ]
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://linkedin.com/company/mintlify"
+    "instagram": "https://instagram.com/lotus_retreats",
+    "facebook": "https://facebook.com/lotus.retreats",
+    "youtube": "https://youtube.com/@lotus-retreats"
   }
 }
